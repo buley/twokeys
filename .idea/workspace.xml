@@ -5,7 +5,7 @@
     <ignored path="Ploy.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/index.html" changelist="52ca3ffc-4ef5-427f-89e6-4ca8f01a3dc3" time="1369879272657" ignored="false" />
-    <file path="/ploy.coffee" changelist="52ca3ffc-4ef5-427f-89e6-4ca8f01a3dc3" time="1370230571220" ignored="false" />
+    <file path="/ploy.coffee" changelist="52ca3ffc-4ef5-427f-89e6-4ca8f01a3dc3" time="1370230659130" ignored="false" />
     <file path="/jquery.js" changelist="52ca3ffc-4ef5-427f-89e6-4ca8f01a3dc3" time="1369879156420" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -29,7 +29,7 @@
       <file leaf-file-name="ploy.coffee" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ploy.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="423" column="46" selection-start="9977" selection-end="9977" vertical-scroll-proportion="0.8293461">
+            <state line="27" column="0" selection-start="779" selection-end="779" vertical-scroll-proportion="0.861244">
               <folding />
             </state>
           </provider>
@@ -427,7 +427,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ploy.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="423" column="46" selection-start="9977" selection-end="9977" vertical-scroll-proportion="0.8293461">
+        <state line="27" column="0" selection-start="779" selection-end="779" vertical-scroll-proportion="0.861244">
           <folding />
         </state>
       </provider>

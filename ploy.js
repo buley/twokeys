@@ -5,7 +5,7 @@
     return this;
   };
 
-  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 1000;
+  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 10000;
 
   Ploy.prototype.DEFAULT_RANDOM_SERIES_COUNT = 1000;
 
@@ -672,7 +672,7 @@
       width = NaN;
     }
     if (includeZero == null) {
-      includeZero = false;
+      includeZero = true;
     }
     binned = {};
     total = arr.length;

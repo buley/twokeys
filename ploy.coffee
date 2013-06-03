@@ -1,7 +1,7 @@
 window.Ploy = () ->
   @
 
-Ploy::DEFAULT_MAX_RANDOM_INTEGER = 1000
+Ploy::DEFAULT_MAX_RANDOM_INTEGER = 10000
 Ploy::DEFAULT_RANDOM_SERIES_COUNT = 1000
 Ploy::DEFAULT_OUTLIER_MULTIPLE = 1.5
 Ploy::DEFAULT_JITTER_MULTIPLIER = 1
@@ -385,7 +385,7 @@ Ploy::Series::binned = (bins = NaN) ->
     @data?.binned = @_getBinned( @data.sorted, @data.fences, bins )
   @data.binned
 
-Ploy::Series::_getBinned = ( arr = [], bins = 10, width = NaN, includeZero = false ) ->
+Ploy::Series::_getBinned = ( arr = [], bins = 10, width = NaN, includeZero = true ) ->
   binned = {}
   total = arr.length
   if false is includeZero
