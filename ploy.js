@@ -5,7 +5,7 @@
     return this;
   };
 
-  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 1000;
+  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 10;
 
   Ploy.prototype.DEFAULT_RANDOM_SERIES_COUNT = 100;
 
@@ -19,7 +19,7 @@
     if (max == null) {
       max = Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER;
     }
-    return Math.floor(Math.random() * (Math.random() * max));
+    return Math.floor(Math.random() * max);
   };
 
   Ploy.prototype._randomSeries = function(count, max, series) {
@@ -806,7 +806,7 @@
     return this.data.inside;
   };
 
-  Ploy.prototype.Series.prototype._jitter = function(arr, passes, floor, multiplier, current) {
+  Ploy.prototype.Series.prototype._jitter = function(arr, passes, floor, multiplier, weight, current) {
     var jittered, num, value, _i, _len;
     if (arr == null) {
       arr = [];
@@ -820,23 +820,29 @@
     if (multiplier == null) {
       multiplier = Ploy.prototype.DEFAULT_JITTER_MULTIPLIER;
     }
+    if (weight == null) {
+      weight = NaN;
+    }
     if (current == null) {
       current = 0;
     }
     current = current + 1;
+    if (!weight) {
+      weight = (1 + Math.floor(num / 10)) * (Math.random() > .5 ? 1 : -1);
+    }
     arr = arr.slice(0);
     if (current <= passes) {
       jittered = [];
       for (_i = 0, _len = arr.length; _i < _len; _i++) {
         num = arr[_i];
         value = Math.random() * multiplier * (1 + Math.floor(num / 10));
-        value = num + Math.floor(Math.random() * multiplier * (1 + Math.floor(num / 10)) * (Math.random() > .5 ? 1 : -1));
+        value = num + Math.floor(Math.random() * multiplier * weight);
         if (!isNaN(floor && value < floor)) {
           value = floor;
         }
         jittered.push(value);
       }
-      return this._jitter(jittered, passes, floor, multiplier, current);
+      return this._jitter(jittered, passes, floor, multiplier, weight, current);
     }
     return arr;
   };

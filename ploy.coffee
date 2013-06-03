@@ -1,14 +1,14 @@
 window.Ploy = () ->
   @
 
-Ploy::DEFAULT_MAX_RANDOM_INTEGER = 1000
+Ploy::DEFAULT_MAX_RANDOM_INTEGER = 10
 Ploy::DEFAULT_RANDOM_SERIES_COUNT = 100
 Ploy::DEFAULT_OUTLIER_MULTIPLE = 1.5
 Ploy::DEFAULT_JITTER_MULTIPLIER = 1
 Ploy::DEFAULT_SPLIT_PASSES = 2
 
 # Gives a random number between 1 and `max`
-Ploy::_randomInteger = (max = Ploy::DEFAULT_MAX_RANDOM_INTEGER) -> Math.floor( Math.random() * ( Math.random() * max ) )
+Ploy::_randomInteger = (max = Ploy::DEFAULT_MAX_RANDOM_INTEGER) -> Math.floor( Math.random() * max )
 
 # Gives a random series of `count` length with max `max`
 Ploy::_randomSeries = (count = Ploy::DEFAULT_RANDOM_SERIES_COUNT, max = Ploy::DEFAULT_MAX_RANDOM_INTEGER, series = [] ) ->
@@ -460,17 +460,19 @@ Ploy::Series::inside = () ->
     @data?.inside = @_getInside()
   @data.inside
 
-Ploy::Series::_jitter = (arr = [], passes = 1, floor = NaN, multiplier = Ploy::DEFAULT_JITTER_MULTIPLIER, current = 0 ) ->
+Ploy::Series::_jitter = (arr = [], passes = 1, floor = NaN, multiplier = Ploy::DEFAULT_JITTER_MULTIPLIER, weight = NaN, current = 0) ->
   current = current + 1
+  if !weight
+    weight = ( 1 + Math.floor(num/10) ) * ( if Math.random() > .5 then 1 else -1 )
   arr = arr.slice(0)
   if ( current <= passes )
     jittered = []
     for num in arr
       value = Math.random() * multiplier * ( 1 + Math.floor(num/10) )
-      value = ( num + Math.floor( Math.random() * multiplier * ( 1 + Math.floor(num/10) ) * ( if Math.random() > .5 then 1 else -1 ) ) )
+      value = ( num + Math.floor( Math.random() * multiplier * weight ) )
       if !isNaN floor and value < floor then value = floor
       jittered.push value
-    return @_jitter(jittered, passes, floor, multiplier, current)
+    return @_jitter(jittered, passes, floor, multiplier, weight, current)
   arr
 
 Ploy::Series::smooth = () ->
