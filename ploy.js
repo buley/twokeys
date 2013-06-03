@@ -54,17 +54,17 @@
     return this;
   };
 
-  Ploy.prototype.Series.prototype.sort = function() {
+  Ploy.prototype.Series.prototype.sorted = function() {
     var _ref, _ref1, _ref2, _ref3;
     if (!(((_ref = this.data) != null ? _ref.sorted : void 0) != null)) {
       if ((_ref1 = this.data) != null) {
-        _ref1.sorted = this._getSort((_ref2 = this.data) != null ? _ref2.original : void 0);
+        _ref1.sorted = this._getSorted((_ref2 = this.data) != null ? _ref2.original : void 0);
       }
     }
     return (_ref3 = this.data) != null ? _ref3.sorted : void 0;
   };
 
-  Ploy.prototype.Series.prototype._getSort = function(arr) {
+  Ploy.prototype.Series.prototype._getSorted = function(arr) {
     if (arr == null) {
       arr = [];
     }
@@ -83,7 +83,7 @@
 
   Ploy.prototype.Series.prototype.median = function() {
     var description, _ref;
-    this.sort();
+    this.sorted();
     if ((_ref = this.data) == null) {
       this.data = {};
     }
@@ -130,7 +130,7 @@
   Ploy.prototype.Series.prototype.mode = function() {
     var _ref, _ref1;
     if (!(((_ref = this.data) != null ? _ref.mode : void 0) != null)) {
-      this.sort();
+      this.sorted();
       if ((_ref1 = this.data) != null) {
         _ref1.mode = this._getMode(this.data.sorted);
       }
@@ -191,8 +191,9 @@
 
   Ploy.prototype.Series.prototype.extremes = function() {
     var _ref, _ref1;
+    console.log('EXTRE');
     if (!(((_ref = this.data) != null ? _ref.extremes : void 0) != null)) {
-      this.sort();
+      this.sorted();
       if ((_ref1 = this.data) != null) {
         _ref1.extremes = this._getExtremes(this.data.sorted);
       }
@@ -204,7 +205,8 @@
     if (data == null) {
       data = [];
     }
-    if (!data.lemgth || 0 === data.lemgth) {
+    console.log('getting');
+    if (!data.length || 0 === data.length) {
       return [];
     } else {
       return [data[0], data[data.length - 1]];
@@ -214,7 +216,7 @@
   Ploy.prototype.Series.prototype.counts = function() {
     var _ref, _ref1;
     if (!(((_ref = this.data) != null ? _ref.counts : void 0) != null)) {
-      this.sort();
+      this.sorted();
       if ((_ref1 = this.data) != null) {
         _ref1.counts = this._getCounts(this.data.sorted);
       }
@@ -295,7 +297,7 @@
   Ploy.prototype.Series.prototype.hinges = function() {
     var _ref, _ref1;
     if (!(((_ref = this.data) != null ? _ref.hinges : void 0) != null)) {
-      this.sort();
+      this.sorted();
       if ((_ref1 = this.data) != null) {
         _ref1.hinges = this._getHinges(this.data.sorted);
       }
@@ -498,6 +500,205 @@
     return results;
   };
 
+  Ploy.prototype.Series.prototype.ranked = function() {
+    var _ref, _ref1;
+    if (!(((_ref = this.data) != null ? _ref.ranked : void 0) != null)) {
+      this.sorted();
+      if ((_ref1 = this.data) != null) {
+        _ref1.ranked = this._getRanked(this.data.sorted);
+      }
+    }
+    return this.data.ranked;
+  };
+
+  Ploy.prototype.Series.prototype._getRanked = function(arr, ties) {
+    var down, i, isTie, num, offset, ranked, reset, tiedCount, tiedNumbers, tiedRank, total, up, usable, _decr, _i, _incr, _j, _len, _len1;
+    if (arr == null) {
+      arr = [];
+    }
+    if (ties == null) {
+      ties = true;
+    }
+    up = {};
+    down = {};
+    total = arr.length;
+    ranked = [];
+    isTie = false;
+    offset = 0;
+    tiedRank = NaN;
+    tiedCount = 0;
+    tiedNumbers = [];
+    reset = function() {
+      tiedRank = NaN;
+      tiedCount = 0;
+      return tiedNumbers = [];
+    };
+    for (i = _i = 0, _len = arr.length; _i < _len; i = ++_i) {
+      num = arr[i];
+      if (false === ties) {
+        up[num] = i + 1;
+        down[num] = total - i;
+      } else {
+        _incr = i + 1;
+        _decr = i - 1;
+        if (num === arr[_decr]) {
+          isTie = true;
+          tiedCount += 1;
+          if (NaN !== tiedRank && false === isTie) {
+            tiedNumbers.push(num);
+            ranked.push(tiedNumbers);
+            reset();
+          } else {
+            tiedNumbers.push(num);
+            isTie = true;
+            tiedRank = _decr;
+          }
+          if (num !== arr[_incr]) {
+            ranked.push(tiedNumbers);
+            reset();
+          }
+        } else {
+          if (num !== arr[_incr]) {
+            if (tiedNumbers.length > 0) {
+              ranked.push(tiedNumbers);
+              reset();
+            } else {
+              ranked.push(num);
+            }
+          } else {
+            tiedNumbers.push(num);
+          }
+        }
+      }
+    }
+    for (i = _j = 0, _len1 = ranked.length; _j < _len1; i = ++_j) {
+      num = ranked[i];
+      if ('number' === typeof num) {
+        down[num] = {
+          rank: i + 1 + offset,
+          peers: 0
+        };
+        up[num] = {
+          rank: total - i - offset,
+          peers: 0
+        };
+      }
+      if ('object' === typeof num) {
+        offset += num.length;
+        usable = num[0];
+        down[usable] = {
+          rank: i + 1 + offset,
+          peers: num.length
+        };
+        up[usable] = {
+          rank: total - i - offset,
+          peers: num.length
+        };
+      } else {
+        offset += 1;
+      }
+    }
+    return {
+      up: up,
+      down: down,
+      groups: {
+        down: ranked.slice(0),
+        up: ranked.reverse()
+      }
+    };
+  };
+
+  Ploy.prototype.Series.prototype.adjacent = function() {
+    var _ref, _ref1;
+    if (!(((_ref = this.data) != null ? _ref.adjacent : void 0) != null)) {
+      this.fences();
+      if ((_ref1 = this.data) != null) {
+        _ref1.adjacent = this._getAdjacent(this.data.sorted, this.data.fences);
+      }
+    }
+    return this.data.adjacent;
+  };
+
+  Ploy.prototype.Series.prototype._getAdjacent = function(arr, fences) {
+    var high, highs, low, lows, val, _i, _len;
+    if (arr == null) {
+      arr = [];
+    }
+    if (fences == null) {
+      fences = {};
+    }
+    low = fences[0];
+    lows = [];
+    high = fences[1];
+    highs = [];
+    for (_i = 0, _len = arr.length; _i < _len; _i++) {
+      val = arr[_i];
+      if (val > low) {
+        lows.push(val);
+      }
+      if (val < high) {
+        highs.push(val);
+      }
+    }
+    lows.sort();
+    highs.sort();
+    return [lows[0], highs[highs.length - 1]];
+  };
+
+  Ploy.prototype.Series.prototype.binned = function(bins) {
+    var _ref, _ref1;
+    if (bins == null) {
+      bins = NaN;
+    }
+    if (!(((_ref = this.data) != null ? _ref.binned : void 0) != null)) {
+      this.sorted();
+      this.mode;
+      if ((_ref1 = this.data) != null) {
+        _ref1.binned = this._getBinned(this.data.sorted, this.data.fences, bins);
+      }
+    }
+    return this.data.binned;
+  };
+
+  Ploy.prototype.Series.prototype._getBinned = function(arr, bins) {
+    var binned, extremes, mod, total, val, width, _i, _len;
+    if (arr == null) {
+      arr = [];
+    }
+    if (bins == null) {
+      bins = 10;
+    }
+    binned = {};
+    total = arr.length;
+    if (0 === total) {
+      return {
+        bins: 0,
+        width: NaN,
+        binned: []
+      };
+    }
+    if (isNaN(bins)) {
+      extremes = this.data.extremes;
+    }
+    width = 1;
+    if (extremes.length === 2) {
+      width = (extremes[1] - extremes[0]) / (Math.log(arr.length) / Math.LN2);
+    }
+    width = Math.floor(width);
+    bins = Math.floor(total / width);
+    for (_i = 0, _len = arr.length; _i < _len; _i++) {
+      val = arr[_i];
+      mod = val % width;
+      binned[mod] = binned[mod] + 1 || 1;
+      console.log(mod);
+    }
+    return {
+      bins: bins,
+      width: width,
+      binned: binned
+    };
+  };
+
   Ploy.prototype.Series.prototype.logs = function() {
     var _ref, _ref1;
     if (!(((_ref = this.data) != null ? _ref.logs : void 0) != null)) {
@@ -567,14 +768,14 @@
     return results;
   };
 
-  Ploy.prototype.Series.prototype.skipMeans = function() {
+  Ploy.prototype.Series.prototype.hanning = function() {
     var _ref, _ref1;
-    if (!(((_ref = this.data) != null ? _ref.skipMeans : void 0) != null)) {
+    if (!(((_ref = this.data) != null ? _ref.hanning : void 0) != null)) {
       if ((_ref1 = this.data) != null) {
-        _ref1.skipMeans = this._getSkipMeans(this.data.original);
+        _ref1.hanning = this._getSkipMeans(this.data.original);
       }
     }
-    return this.data.skipMeans;
+    return this.data.hanning;
   };
 
   Ploy.prototype.Series.prototype._getSkipMeans = function(arr) {
@@ -644,7 +845,7 @@
     var jittered, _ref, _ref1;
     jittered = this._jitter(this.data.sorted, 3);
     if (!(((_ref = this.data) != null ? _ref.smoothed : void 0) != null)) {
-      this.sort();
+      this.sorted();
       if ((_ref1 = this.data) != null) {
         _ref1.smooth = this._getSmooth(this.data.original);
       }
@@ -798,25 +999,33 @@
     }
     this.data.description = {
       original: this.data.original,
-      median: this.median(),
-      mean: this.mean(),
-      mode: this.mode(),
-      counts: this.counts(),
-      hinges: this.hinges(),
-      iqr: this.iqr(),
-      fences: this.fences(),
-      outliers: this.outliers(),
-      outer: this.outer(),
-      outside: this.outside(),
-      inside: this.inside(),
-      extremes: this.extremes(),
-      smooth: this.smooth(),
-      skipMeans: this.skipMeans(),
+      summary: {
+        median: this.median(),
+        mean: this.mean(),
+        mode: this.mode(),
+        hinges: this.hinges(),
+        adjacent: this.adjacent(),
+        outliers: this.outliers(),
+        outer: this.outer(),
+        outside: this.outside(),
+        inside: this.inside(),
+        extremes: this.extremes(),
+        iqr: this.iqr(),
+        fences: this.fences()
+      },
+      smooths: {
+        smooth: this.smooth(),
+        hanning: this.hanning()
+      },
       transforms: {
         logs: this.logs(),
         roots: this.roots(),
         inverse: this.inverse()
-      }
+      },
+      counts: this.counts(),
+      sorted: this.sorted(),
+      ranked: this.ranked(),
+      binned: this.binned()
     };
     return this.data.description;
   };

@@ -26,12 +26,12 @@ Ploy::Series = (options = {}) ->
 
 # Sort
 
-Ploy::Series::sort = () ->
+Ploy::Series::sorted = () ->
   if !@data?.sorted?
-    @data?.sorted = @_getSort( @data?.original )
+    @data?.sorted = @_getSorted( @data?.original )
   @data?.sorted
 
-Ploy::Series::_getSort = (arr = []) ->
+Ploy::Series::_getSorted = (arr = []) ->
   arr = arr.slice(0)
   arr.sort (a,b) ->
     if a > b then 1
@@ -44,7 +44,7 @@ Ploy::Series::_getSort = (arr = []) ->
 # Median
 
 Ploy::Series::median = () ->
-  @sort()
+  @sorted()
   @data ?= {}
   if !@data.median?
     @data.median = @_getMedian(@data.sorted)
@@ -70,7 +70,7 @@ Ploy::Series::_getMean = (arr = []) ->
 
 Ploy::Series::mode = () ->
   if !@data?.mode?
-    @sort()
+    @sorted()
     @data?.mode = @_getMode(@data.sorted)
   @data.mode
 
@@ -108,19 +108,21 @@ Ploy::Series::_getMode = (data = [], best = [] ) ->
   result
 
 Ploy::Series::extremes = () ->
+  console.log( 'EXTRE' )
   if !@data?.extremes?
-    @sort()
+    @sorted()
     @data?.extremes = @_getExtremes(@data.sorted)
   @data.extremes
 
 Ploy::Series::_getExtremes = (data = []) ->
-  if !data.lemgth or 0 is data.lemgth then []
+  console.log('getting')
+  if !data.length or 0 is data.length then []
   else
     [ data[ 0 ], data[ data.length - 1 ] ]
 
 Ploy::Series::counts = () ->
   if !@data?.counts?
-    @sort()
+    @sorted()
     @data?.counts = @_getCounts(@data.sorted)
   @data.counts
 
@@ -162,7 +164,7 @@ Ploy::Series::_getMedian = (arr = []) ->
 
 Ploy::Series::hinges = () ->
   if !@data?.hinges?
-    @sort()
+    @sorted()
     @data?.hinges = @_getHinges(@data.sorted)
   @data.hinges
 
@@ -276,6 +278,138 @@ Ploy::Series::_getOutliers = (arr = [], hinged = []) ->
       results.push(num)
   results
 
+
+Ploy::Series::ranked = () ->
+  if !@data?.ranked?
+    @sorted()
+    @data?.ranked = @_getRanked(@data.sorted)
+  @data.ranked
+
+Ploy::Series::_getRanked = (arr = [], ties = true ) ->
+  up = {}
+  down = {}
+  total = arr.length
+  ranked = []
+  isTie = false
+  offset = 0
+  tiedRank = NaN
+  tiedCount = 0
+  tiedNumbers = []
+  reset = () ->
+    tiedRank = NaN
+    tiedCount = 0
+    tiedNumbers = []
+  for num, i in arr
+    #naive
+    if false is ties
+      up[ num ] = i + 1
+      down[ num ] = total - i
+    else
+      _incr = i + 1
+      _decr = i - 1
+      if num is arr[ _decr ]
+        isTie = true
+        tiedCount += 1
+        if NaN isnt tiedRank and false is isTie
+          tiedNumbers.push num
+          ranked.push tiedNumbers
+          reset()
+        else
+          tiedNumbers.push num
+          isTie = true
+          tiedRank = _decr
+        if num isnt arr[ _incr ]
+          ranked.push tiedNumbers
+          reset()
+      else
+        if num isnt arr[ _incr ]
+          if tiedNumbers.length > 0
+            ranked.push tiedNumbers
+            reset()
+          else
+            ranked.push num
+        else
+          tiedNumbers.push num
+  for num, i in ranked
+    if 'number' is typeof num
+      down[ num ] =
+        rank: i + 1 + offset
+        peers: 0
+      up[ num ] =
+        rank: total - i - offset
+        peers: 0
+    #
+    if 'object' is typeof num
+      offset += num.length
+      usable = num[ 0 ]
+      down[ usable ] =
+        rank: i + 1 + offset
+        peers: num.length
+      up[ usable ] =
+        rank: total - i - offset
+        peers: num.length
+    else
+      offset += 1
+  {
+    up
+    down
+    groups:
+      down: ranked.slice(0)
+      up: ranked.reverse()
+  }
+
+
+Ploy::Series::adjacent = () ->
+  if !@data?.adjacent?
+    @fences()
+    @data?.adjacent = @_getAdjacent( @data.sorted, @data.fences )
+  @data.adjacent
+
+Ploy::Series::_getAdjacent = ( arr = [], fences = {} ) ->
+  low = fences[ 0 ]
+  lows = []
+  high = fences[ 1 ]
+  highs = []
+  for val in arr
+    if val > low then lows.push val
+    if val < high then highs.push val
+  lows.sort()
+  highs.sort()
+  [ lows[0], highs[ highs.length - 1 ] ]
+
+
+Ploy::Series::binned = (bins = NaN) ->
+  if !@data?.binned?
+    @sorted()
+    @mode
+    @data?.binned = @_getBinned( @data.sorted, @data.fences, bins )
+  @data.binned
+
+Ploy::Series::_getBinned = ( arr = [], bins = 10 ) ->
+  binned = {}
+  total = arr.length
+  if 0 is total
+    return  {
+      bins: 0
+      width: NaN
+      binned: []
+    }
+  if isNaN(bins)
+    extremes = @data.extremes
+  width = 1
+  if extremes.length is 2
+    width = ( extremes[ 1 ] - extremes[ 0 ] ) / ( Math.log( arr.length ) / Math.LN2 )
+  width = Math.floor( width )
+  bins = Math.floor( total / width )
+  for val in arr
+    mod = val % width
+    binned[ mod ] = binned[ mod] + 1 || 1
+    console.log(mod)
+  {
+    bins: bins
+    width: width
+    binned: binned
+  }
 Ploy::Series::logs = () ->
   if !@data?.logs?
     @data?.logs = @_getLogs( @data.original )
@@ -306,10 +440,10 @@ Ploy::Series::_getInverse = (arr = []) ->
   results.push( 1 / val ) for val in arr
   results
 
-Ploy::Series::skipMeans = () ->
-  if !@data?.skipMeans?
-    @data?.skipMeans = @_getSkipMeans( @data.original )
-  @data.skipMeans
+Ploy::Series::hanning = () ->
+  if !@data?.hanning?
+    @data?.hanning = @_getSkipMeans( @data.original )
+  @data.hanning
 
 Ploy::Series::_getSkipMeans = (arr = []) ->
   results = []
@@ -342,7 +476,7 @@ Ploy::Series::_jitter = (arr = [], passes = 1, floor = NaN, multiplier = Ploy::D
 Ploy::Series::smooth = () ->
   jittered = @_jitter( @data.sorted, 3 )
   if !@data?.smoothed?
-    @sort()
+    @sorted()
     @data?.smooth = @_getSmooth( @data.original )
   #console.log('SORTED',@data.sorted)
   #console.log('JITTERED',jittered)
@@ -376,6 +510,7 @@ Ploy::Series::_smoothExtremes = (arr = [], passes = 1, current = 0, end = 'both'
       second = before[ 1 ]
       third = before[ 2 ]
       tmp = second - ( 2 * ( third - second ) )
+      #TODO: Custom sort method on @
       median = [ second, tmp, first ].sort()
       median = median[ Math.floor( median.length / 2 ) ]
       arr[ 0 ] = median
@@ -384,6 +519,7 @@ Ploy::Series::_smoothExtremes = (arr = [], passes = 1, current = 0, end = 'both'
       penultimate = before[ arr.length - 2 ]
       last = before[ arr.length - 1 ]
       tmp = penultimate - ( 2 * ( antepenultimate - penultimate ) )
+      #TODO: Custom sort method on @
       median = [ penultimate, tmp, last ].sort();
       median = median[ Math.floor( median.length / 2 ) ]
       arr[ arr.length - 1 ] = median
@@ -430,23 +566,28 @@ Ploy::Series::describe = () ->
   @data ?= {}
   @data.description =
     original: @data.original
-    median: @median()
-    mean: @mean()
-    mode: @mode()
-    counts: @counts()
-    hinges: @hinges()
-    iqr: @iqr()
-    fences: @fences()
-    outliers: @outliers()
-    outer: @outer()
-    outside: @outside()
-    inside: @inside()
-    extremes: @extremes()
-    smooth: @smooth()
-    skipMeans: @skipMeans()
+    summary:
+      median: @median()
+      mean: @mean()
+      mode: @mode()
+      hinges: @hinges()
+      adjacent: @adjacent()
+      outliers: @outliers()
+      outer: @outer()
+      outside: @outside()
+      inside: @inside()
+      extremes: @extremes()
+      iqr: @iqr()
+      fences: @fences()
+    smooths:
+      smooth: @smooth()
+      hanning: @hanning()
     transforms:
       logs: @logs()
       roots: @roots()
       inverse: @inverse()
-
+    counts: @counts()
+    sorted: @sorted()
+    ranked: @ranked()
+    binned: @binned()
   @data.description
