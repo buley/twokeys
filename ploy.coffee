@@ -1,11 +1,13 @@
 window.Ploy = () ->
   @
 
-Ploy::DEFAULT_MAX_RANDOM_INTEGER = 10000
+Ploy::DEFAULT_MAX_RANDOM_INTEGER = 100
+Ploy::DEFAULT_MIN_RANDOM_INTEGER = 0
 Ploy::DEFAULT_RANDOM_SERIES_COUNT = 1000
 Ploy::DEFAULT_OUTLIER_MULTIPLE = 1.5
 Ploy::DEFAULT_JITTER_MULTIPLIER = 1
 Ploy::DEFAULT_SPLIT_PASSES = 2
+Ploy::DEFAULT_MAX_RANDOM_DIMENSIONALITY = 2
 
 # Gives a random number between 1 and `max`
 Ploy::_randomInteger = (max = Ploy::DEFAULT_MAX_RANDOM_INTEGER) -> Math.floor( Math.random() * max )
@@ -14,6 +16,21 @@ Ploy::_randomInteger = (max = Ploy::DEFAULT_MAX_RANDOM_INTEGER) -> Math.floor( M
 Ploy::_randomSeries = (count = Ploy::DEFAULT_RANDOM_SERIES_COUNT, max = Ploy::DEFAULT_MAX_RANDOM_INTEGER, series = [] ) ->
   series.push( Ploy::_randomInteger(max) ) for num in [1..count ]
   series
+
+# Gives a random point in n-space
+Ploy::_randomPoint = ( dimension = Ploy::DEFAULT_MAX_RANDOM_DIMENSIONALITY, max = Ploy::DEFAULT_MAX_RANDOM_INTEGER) ->
+  point = []
+  for i in [0..(dimension-1)]
+    point.push Math.floor( ( Math.random() * (max/10) ) % max )
+  point
+
+
+# Gives a random set of points of `count` length with max `max` x and y
+Ploy::_randomPoints = (count = Ploy::DEFAULT_RANDOM_SERIES_COUNT, dimension = Ploy::DEFAULT_MAX_RANDOM_DIMENSIONALITY, max = Ploy::DEFAULT_MAX_RANDOM_INTEGER ) ->
+  points = []
+  points.push( Ploy::_randomPoint( @dimension, max ) ) for num in [1..count ]
+  points
+
 
 # Series
 Ploy::Series = (options = {}) ->
@@ -612,4 +629,24 @@ Ploy::Series::describe = () ->
     sorted: @sorted()
     ranked: @ranked()
     binned: @binned()
+  @data.description
+
+
+# Series
+Ploy::Points = (options = {}) ->
+  @data ?= {}
+  if 'number' is typeof options
+    @count = options
+    options = {}
+  else
+    @dimension = options.dimensionality || 2
+    @count = options.count || 100
+  @data.original = options.data
+  @data.original ?= Ploy::_randomPoints.apply(@,[ @count, @dimension ])
+  @
+
+Ploy::Points::describe = () ->
+  @data ?= {}
+  @data.description =
+    original: @data.original
   @data.description

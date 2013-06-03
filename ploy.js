@@ -5,7 +5,9 @@
     return this;
   };
 
-  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 10000;
+  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 100;
+
+  Ploy.prototype.DEFAULT_MIN_RANDOM_INTEGER = 0;
 
   Ploy.prototype.DEFAULT_RANDOM_SERIES_COUNT = 1000;
 
@@ -14,6 +16,8 @@
   Ploy.prototype.DEFAULT_JITTER_MULTIPLIER = 1;
 
   Ploy.prototype.DEFAULT_SPLIT_PASSES = 2;
+
+  Ploy.prototype.DEFAULT_MAX_RANDOM_DIMENSIONALITY = 2;
 
   Ploy.prototype._randomInteger = function(max) {
     if (max == null) {
@@ -37,6 +41,39 @@
       series.push(Ploy.prototype._randomInteger(max));
     }
     return series;
+  };
+
+  Ploy.prototype._randomPoint = function(dimension, max) {
+    var i, point, _i, _ref;
+    if (dimension == null) {
+      dimension = Ploy.prototype.DEFAULT_MAX_RANDOM_DIMENSIONALITY;
+    }
+    if (max == null) {
+      max = Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER;
+    }
+    point = [];
+    for (i = _i = 0, _ref = dimension - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      point.push(Math.floor((Math.random() * (max / 10)) % max));
+    }
+    return point;
+  };
+
+  Ploy.prototype._randomPoints = function(count, dimension, max) {
+    var num, points, _i;
+    if (count == null) {
+      count = Ploy.prototype.DEFAULT_RANDOM_SERIES_COUNT;
+    }
+    if (dimension == null) {
+      dimension = Ploy.prototype.DEFAULT_MAX_RANDOM_DIMENSIONALITY;
+    }
+    if (max == null) {
+      max = Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER;
+    }
+    points = [];
+    for (num = _i = 1; 1 <= count ? _i <= count : _i >= count; num = 1 <= count ? ++_i : --_i) {
+      points.push(Ploy.prototype._randomPoint(this.dimension, max));
+    }
+    return points;
   };
 
   Ploy.prototype.Series = function(options) {
@@ -1065,6 +1102,39 @@
       sorted: this.sorted(),
       ranked: this.ranked(),
       binned: this.binned()
+    };
+    return this.data.description;
+  };
+
+  Ploy.prototype.Points = function(options) {
+    var _base, _ref, _ref1;
+    if (options == null) {
+      options = {};
+    }
+    if ((_ref = this.data) == null) {
+      this.data = {};
+    }
+    if ('number' === typeof options) {
+      this.count = options;
+      options = {};
+    } else {
+      this.dimension = options.dimensionality || 2;
+      this.count = options.count || 100;
+    }
+    this.data.original = options.data;
+    if ((_ref1 = (_base = this.data).original) == null) {
+      _base.original = Ploy.prototype._randomPoints.apply(this, [this.count, this.dimension]);
+    }
+    return this;
+  };
+
+  Ploy.prototype.Points.prototype.describe = function() {
+    var _ref;
+    if ((_ref = this.data) == null) {
+      this.data = {};
+    }
+    this.data.description = {
+      original: this.data.original
     };
     return this.data.description;
   };

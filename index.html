@@ -11,8 +11,10 @@
         <script type="text/javascript">
             ploy = new Ploy( { debug: true } );
             $( '#random' ).on( 'click', function() {
-                series = new ploy.Series();
-                console.log( series.describe() );
+                var series = new ploy.Series();
+                console.log( 'Series', series.describe() );
+                var points = new ploy.Points( { count: 1000 } ) ;
+                console.log( 'Points', points.describe() );
             } );
         </script>
     </footer>
