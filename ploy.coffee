@@ -1,8 +1,8 @@
 window.Ploy = () ->
   @
 
-Ploy::DEFAULT_MAX_RANDOM_INTEGER = 10
-Ploy::DEFAULT_RANDOM_SERIES_COUNT = 100
+Ploy::DEFAULT_MAX_RANDOM_INTEGER = 1000
+Ploy::DEFAULT_RANDOM_SERIES_COUNT = 1000
 Ploy::DEFAULT_OUTLIER_MULTIPLE = 1.5
 Ploy::DEFAULT_JITTER_MULTIPLIER = 1
 Ploy::DEFAULT_SPLIT_PASSES = 2
@@ -385,26 +385,46 @@ Ploy::Series::binned = (bins = NaN) ->
     @data?.binned = @_getBinned( @data.sorted, @data.fences, bins )
   @data.binned
 
-Ploy::Series::_getBinned = ( arr = [], bins = 10 ) ->
+Ploy::Series::_getBinned = ( arr = [], bins = 10, width = NaN, includeZero = false ) ->
   binned = {}
   total = arr.length
+  if false is includeZero
+    includeZero = 1
+  else
+    includeZero = 0
   if 0 is total
     return  {
       bins: 0
       width: NaN
       binned: []
     }
-  if isNaN(bins)
-    extremes = @data.extremes
-  width = 1
-  if extremes.length is 2
+  extremes = @data.extremes
+  if !width and extremes.length is 2
     width = ( extremes[ 1 ] - extremes[ 0 ] ) / ( Math.log( arr.length ) / Math.LN2 )
-  width = Math.floor( width )
-  bins = Math.floor( total / width )
+    width = Math.floor( width )
+    areIntegers = true
+    for item in arr
+      if false is ( 0 is item % 1 )
+        areIntegers = false
+        break
+    if areIntegers
+      width = Math.floor( width )
+  bins = Math.floor( extremes[ 1 ] / width ) + 1
+  if !bins or bins < 1
+    bins = 1
   for val in arr
-    mod = val % width
-    binned[ mod ] = binned[ mod] + 1 || 1
-    console.log(mod)
+    bin = Math.floor( ( val + -(includeZero) ) / width )
+    binned[ bin ] = binned[ bin ] || {}
+    if 'undefined' is typeof binned[ bin ].count
+      binned[ bin ].count = 1
+      binned[ bin ].from = ( bin * width ) + includeZero
+      binned[ bin ].to = ( ( bin + 1 ) * width ) + includeZero - 1
+    else
+      binned[ bin ].count += 1
+    if 'undefined' is typeof binned[ bin ].data
+      binned[ bin ].data = [ val ]
+    else
+      binned[ bin ].data.push val
   {
     bins: bins
     width: width

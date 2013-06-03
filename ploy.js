@@ -5,9 +5,9 @@
     return this;
   };
 
-  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 10;
+  Ploy.prototype.DEFAULT_MAX_RANDOM_INTEGER = 1000;
 
-  Ploy.prototype.DEFAULT_RANDOM_SERIES_COUNT = 100;
+  Ploy.prototype.DEFAULT_RANDOM_SERIES_COUNT = 1000;
 
   Ploy.prototype.DEFAULT_OUTLIER_MULTIPLE = 1.5;
 
@@ -660,16 +660,27 @@
     return this.data.binned;
   };
 
-  Ploy.prototype.Series.prototype._getBinned = function(arr, bins) {
-    var binned, extremes, mod, total, val, width, _i, _len;
+  Ploy.prototype.Series.prototype._getBinned = function(arr, bins, width, includeZero) {
+    var areIntegers, bin, binned, extremes, item, total, val, _i, _j, _len, _len1;
     if (arr == null) {
       arr = [];
     }
     if (bins == null) {
       bins = 10;
     }
+    if (width == null) {
+      width = NaN;
+    }
+    if (includeZero == null) {
+      includeZero = false;
+    }
     binned = {};
     total = arr.length;
+    if (false === includeZero) {
+      includeZero = 1;
+    } else {
+      includeZero = 0;
+    }
     if (0 === total) {
       return {
         bins: 0,
@@ -677,20 +688,42 @@
         binned: []
       };
     }
-    if (isNaN(bins)) {
-      extremes = this.data.extremes;
-    }
-    width = 1;
-    if (extremes.length === 2) {
+    extremes = this.data.extremes;
+    if (!width && extremes.length === 2) {
       width = (extremes[1] - extremes[0]) / (Math.log(arr.length) / Math.LN2);
+      width = Math.floor(width);
+      areIntegers = true;
+      for (_i = 0, _len = arr.length; _i < _len; _i++) {
+        item = arr[_i];
+        if (false === (0 === item % 1)) {
+          areIntegers = false;
+          break;
+        }
+      }
+      if (areIntegers) {
+        width = Math.floor(width);
+      }
     }
-    width = Math.floor(width);
-    bins = Math.floor(total / width);
-    for (_i = 0, _len = arr.length; _i < _len; _i++) {
-      val = arr[_i];
-      mod = val % width;
-      binned[mod] = binned[mod] + 1 || 1;
-      console.log(mod);
+    bins = Math.floor(extremes[1] / width) + 1;
+    if (!bins || bins < 1) {
+      bins = 1;
+    }
+    for (_j = 0, _len1 = arr.length; _j < _len1; _j++) {
+      val = arr[_j];
+      bin = Math.floor((val + -includeZero) / width);
+      binned[bin] = binned[bin] || {};
+      if ('undefined' === typeof binned[bin].count) {
+        binned[bin].count = 1;
+        binned[bin].from = (bin * width) + includeZero;
+        binned[bin].to = ((bin + 1) * width) + includeZero - 1;
+      } else {
+        binned[bin].count += 1;
+      }
+      if ('undefined' === typeof binned[bin].data) {
+        binned[bin].data = [val];
+      } else {
+        binned[bin].data.push(val);
+      }
     }
     return {
       bins: bins,
