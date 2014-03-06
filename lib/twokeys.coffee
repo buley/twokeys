@@ -1,24 +1,24 @@
-window.Ploy = () ->
+window.Twokeys = () ->
   @
 
-Ploy::DEFAULT_MAX_RANDOM_INTEGER = 100
-Ploy::DEFAULT_MIN_RANDOM_INTEGER = 0
-Ploy::DEFAULT_RANDOM_SERIES_COUNT = 1000
-Ploy::DEFAULT_OUTLIER_MULTIPLE = 1.5
-Ploy::DEFAULT_JITTER_MULTIPLIER = 1
-Ploy::DEFAULT_SPLIT_PASSES = 2
-Ploy::DEFAULT_MAX_RANDOM_DIMENSIONALITY = 2
+Twokeys::DEFAULT_MAX_RANDOM_INTEGER = 100
+Twokeys::DEFAULT_MIN_RANDOM_INTEGER = 0
+Twokeys::DEFAULT_RANDOM_SERIES_COUNT = 1000
+Twokeys::DEFAULT_OUTLIER_MULTIPLE = 1.5
+Twokeys::DEFAULT_JITTER_MULTIPLIER = 1
+Twokeys::DEFAULT_SPLIT_PASSES = 2
+Twokeys::DEFAULT_MAX_RANDOM_DIMENSIONALITY = 2
 
 # Gives a random number between 1 and `max`
-Ploy::_randomInteger = (max = Ploy::DEFAULT_MAX_RANDOM_INTEGER) -> Math.floor( Math.random() * max )
+Twokeys::_randomInteger = (max = Twokeys::DEFAULT_MAX_RANDOM_INTEGER) -> Math.floor( Math.random() * max )
 
 # Gives a random series of `count` length with max `max`
-Ploy::_randomSeries = (count = Ploy::DEFAULT_RANDOM_SERIES_COUNT, max = Ploy::DEFAULT_MAX_RANDOM_INTEGER, series = [] ) ->
-  series.push( Ploy::_randomInteger(max) ) for num in [1..count ]
+Twokeys::_randomSeries = (count = Twokeys::DEFAULT_RANDOM_SERIES_COUNT, max = Twokeys::DEFAULT_MAX_RANDOM_INTEGER, series = [] ) ->
+  series.push( Twokeys::_randomInteger(max) ) for num in [1..count ]
   series
 
 # Gives a random point in n-space
-Ploy::_randomPoint = ( dimension = Ploy::DEFAULT_MAX_RANDOM_DIMENSIONALITY, max = Ploy::DEFAULT_MAX_RANDOM_INTEGER) ->
+Twokeys::_randomPoint = ( dimension = Twokeys::DEFAULT_MAX_RANDOM_DIMENSIONALITY, max = Twokeys::DEFAULT_MAX_RANDOM_INTEGER) ->
   point = []
   for i in [0..(dimension-1)]
     point.push Math.floor( ( Math.random() * (max/10) ) % max )
@@ -26,29 +26,29 @@ Ploy::_randomPoint = ( dimension = Ploy::DEFAULT_MAX_RANDOM_DIMENSIONALITY, max 
 
 
 # Gives a random set of points of `count` length with max `max` x and y
-Ploy::_randomPoints = (count = Ploy::DEFAULT_RANDOM_SERIES_COUNT, dimension = Ploy::DEFAULT_MAX_RANDOM_DIMENSIONALITY, max = Ploy::DEFAULT_MAX_RANDOM_INTEGER ) ->
+Twokeys::_randomPoints = (count = Twokeys::DEFAULT_RANDOM_SERIES_COUNT, dimension = Twokeys::DEFAULT_MAX_RANDOM_DIMENSIONALITY, max = Twokeys::DEFAULT_MAX_RANDOM_INTEGER ) ->
   points = []
-  points.push( Ploy::_randomPoint( @dimension, max ) ) for num in [1..count ]
+  points.push( Twokeys::_randomPoint( @dimension, max ) ) for num in [1..count ]
   points
 
 
 # Series
-Ploy::Series = (options = {}) ->
+Twokeys::Series = (options = {}) ->
   @data ?= {}
   @data.original = options.data
-  @data.original ?= Ploy::_randomSeries.apply(@,[])
+  @data.original ?= Twokeys::_randomSeries.apply(@,[])
   @
 
 # Utilities
 
 # Sort
 
-Ploy::Series::sorted = () ->
+Twokeys::Series::sorted = () ->
   if !@data?.sorted?
     @data?.sorted = @_getSorted( @data?.original )
   @data?.sorted
 
-Ploy::Series::_getSorted = (arr = []) ->
+Twokeys::Series::_getSorted = (arr = []) ->
   arr = arr.slice(0)
   arr.sort (a,b) ->
     if a > b then 1
@@ -60,7 +60,7 @@ Ploy::Series::_getSorted = (arr = []) ->
 
 # Median
 
-Ploy::Series::median = () ->
+Twokeys::Series::median = () ->
   @sorted()
   @data ?= {}
   if !@data.median?
@@ -71,27 +71,26 @@ Ploy::Series::median = () ->
     datum: @data.median
     depth: @data.medianDepth
 
-Ploy::Series::mean = () ->
+Twokeys::Series::mean = () ->
   if !@data?.mean?
     @data?.mean = @_getMean(@data?.original)
   @data.mean
 
-Ploy::Series::_getMean = (arr = []) ->
+Twokeys::Series::_getMean = (arr = []) ->
   if !arr.length or 0 is arr.length
     return NaN
-  console.log('arr',arr.length)
   total = 0
   i = 0
   total += num for num, i in arr
   total / i
 
-Ploy::Series::mode = () ->
+Twokeys::Series::mode = () ->
   if !@data?.mode?
     @sorted()
     @data?.mode = @_getMode(@data.sorted)
   @data.mode
 
-Ploy::Series::_getMode = (data = [], best = [] ) ->
+Twokeys::Series::_getMode = (data = [], best = [] ) ->
   if !data.length or !best.length or 0 is data.length or 0 is best.length
     return []
   data = data.slice(0)
@@ -124,26 +123,24 @@ Ploy::Series::_getMode = (data = [], best = [] ) ->
     data: arr
   result
 
-Ploy::Series::extremes = () ->
-  console.log( 'EXTRE' )
+Twokeys::Series::extremes = () ->
   if !@data?.extremes?
     @sorted()
     @data?.extremes = @_getExtremes(@data.sorted)
   @data.extremes
 
-Ploy::Series::_getExtremes = (data = []) ->
-  console.log('getting')
+Twokeys::Series::_getExtremes = (data = []) ->
   if !data.length or 0 is data.length then []
   else
     [ data[ 0 ], data[ data.length - 1 ] ]
 
-Ploy::Series::counts = () ->
+Twokeys::Series::counts = () ->
   if !@data?.counts?
     @sorted()
     @data?.counts = @_getCounts(@data.sorted)
   @data.counts
 
-Ploy::Series::_getCounts = (data = [], counts = [] ) ->
+Twokeys::Series::_getCounts = (data = [], counts = [] ) ->
   data = data.slice(0)
   counts = counts.slice(0)
   while data.length
@@ -158,13 +155,13 @@ Ploy::Series::_getCounts = (data = [], counts = [] ) ->
     return @_getCounts(data, counts)
   counts
 
-Ploy::Series::_getMedianDepth = (arr = [], offset = 0 ) ->
+Twokeys::Series::_getMedianDepth = (arr = [], offset = 0 ) ->
   if !arr.length or 0 is arr.length
     NaN
   else
     offset + ((arr.length + 1)/2)
 
-Ploy::Series::_getMedian = (arr = []) ->
+Twokeys::Series::_getMedian = (arr = []) ->
   arr = arr.slice(0)
   if !arr.length or 0 is arr.length
     return NaN
@@ -176,16 +173,16 @@ Ploy::Series::_getMedian = (arr = []) ->
     else
       arr.shift()
       arr.pop()
-      result = Ploy::Series::_getMedian(arr)
+      result = Twokeys::Series::_getMedian(arr)
   result
 
-Ploy::Series::hinges = () ->
+Twokeys::Series::hinges = () ->
   if !@data?.hinges?
     @sorted()
     @data?.hinges = @_getHinges(@data.sorted)
   @data.hinges
 
-Ploy::Series::_getHinges = (arr = [], hinges = 2, result = []) ->
+Twokeys::Series::_getHinges = (arr = [], hinges = 2, result = []) ->
   arr = arr.slice(0)
   total = arr.length
   if 0 isnt hinges % 2
@@ -203,13 +200,13 @@ Ploy::Series::_getHinges = (arr = [], hinges = 2, result = []) ->
       depth: @_getMedianDepth(fragment, ((step*per)))
   result
 
-Ploy::Series::iqr = () ->
+Twokeys::Series::iqr = () ->
   if !@data?.iqr?
     @hinges()
     @data?.iqr = @_getIQR(@data.hinges)
   @data?.iqr
 
-Ploy::Series::_getIQR = (hinges = []) ->
+Twokeys::Series::_getIQR = (hinges = []) ->
   first = hinges[0]?.datum
   second = hinges[1]?.datum
   if !first? or !second?
@@ -217,14 +214,13 @@ Ploy::Series::_getIQR = (hinges = []) ->
   else
     Math.abs(first - second)
 
-
-Ploy::Series::fences = () ->
+Twokeys::Series::fences = () ->
   if !@data?.fences?
     @iqr()
     @data?.fences = @_getFences()
   @data.fences
 
-Ploy::Series::_getFences = (multiple = Ploy::DEFAULT_OUTLIER_MULTIPLE) ->
+Twokeys::Series::_getFences = (multiple = Twokeys::DEFAULT_OUTLIER_MULTIPLE) ->
   base = @data.median
   extra = @data.iqr * multiple
   if !base or !extra
@@ -232,26 +228,26 @@ Ploy::Series::_getFences = (multiple = Ploy::DEFAULT_OUTLIER_MULTIPLE) ->
   else
     [ base - extra, base + extra ]
 
-Ploy::Series::outer = () ->
+Twokeys::Series::outer = () ->
   if !@data?.outer?
     @iqr()
     @data?.outer = @_getOuter()
   @data.outer
 
-Ploy::Series::_getOuter = (multiple = Ploy::DEFAULT_OUTLIER_MULTIPLE) ->
+Twokeys::Series::_getOuter = (multiple = Twokeys::DEFAULT_OUTLIER_MULTIPLE) ->
   base = @data.median
   if !base
     return []
   extra = 2 * @data.iqr * multiple
   [ base - extra, base + extra ]
 
-Ploy::Series::outside = () ->
+Twokeys::Series::outside = () ->
   if !@data?.outside?
     @iqr()
     @data?.outside = @_getOutside()
   @data.outside
 
-Ploy::Series::_getOutside = () ->
+Twokeys::Series::_getOutside = () ->
   results = []
   sorted = @data.sorted
   outer = @data.outer
@@ -261,13 +257,13 @@ Ploy::Series::_getOutside = () ->
     if num > max or num < min
       results.push(num)
   results
-Ploy::Series::inside = () ->
+Twokeys::Series::inside = () ->
   if !@data?.inside?
     @iqr()
     @data?.inside = @_getInside()
   @data.inside
 
-Ploy::Series::_getInside = () ->
+Twokeys::Series::_getInside = () ->
   results = []
   sorted = @data.sorted
   fences = @data.fences
@@ -278,13 +274,13 @@ Ploy::Series::_getInside = () ->
       results.push(num)
   results
 
-Ploy::Series::outliers = () ->
+Twokeys::Series::outliers = () ->
   if !@data?.outliers?
     @fences()
     @data?.outliers = @_getOutliers()
   @data.outliers
 
-Ploy::Series::_getOutliers = (arr = [], hinged = []) ->
+Twokeys::Series::_getOutliers = (arr = [], hinged = []) ->
   results = []
   sorted = @data.sorted
   fences = @data.fences
@@ -295,14 +291,13 @@ Ploy::Series::_getOutliers = (arr = [], hinged = []) ->
       results.push(num)
   results
 
-
-Ploy::Series::ranked = () ->
+Twokeys::Series::ranked = () ->
   if !@data?.ranked?
     @sorted()
     @data?.ranked = @_getRanked(@data.sorted)
   @data.ranked
 
-Ploy::Series::_getRanked = (arr = [], ties = true ) ->
+Twokeys::Series::_getRanked = (arr = [], ties = true ) ->
   up = {}
   down = {}
   total = arr.length
@@ -375,14 +370,13 @@ Ploy::Series::_getRanked = (arr = [], ties = true ) ->
       up: ranked.reverse()
   }
 
-
-Ploy::Series::adjacent = () ->
+Twokeys::Series::adjacent = () ->
   if !@data?.adjacent?
     @fences()
     @data?.adjacent = @_getAdjacent( @data.sorted, @data.fences )
   @data.adjacent
 
-Ploy::Series::_getAdjacent = ( arr = [], fences = {} ) ->
+Twokeys::Series::_getAdjacent = ( arr = [], fences = {} ) ->
   low = fences[ 0 ]
   lows = []
   high = fences[ 1 ]
@@ -395,14 +389,15 @@ Ploy::Series::_getAdjacent = ( arr = [], fences = {} ) ->
   [ lows[0], highs[ highs.length - 1 ] ]
 
 
-Ploy::Series::binned = (bins = NaN) ->
+Twokeys::Series::binned = (bins = NaN) ->
   if !@data?.binned?
     @sorted()
     @mode
     @data?.binned = @_getBinned( @data.sorted, @data.fences, bins )
   @data.binned
 
-Ploy::Series::_getBinned = ( arr = [], bins = 10, width = NaN, includeZero = true ) ->
+
+Twokeys::Series::_getBinned = ( arr = [], bins = 10, width = NaN, includeZero = true ) ->
   binned = {}
   total = arr.length
   if false is includeZero
@@ -447,42 +442,43 @@ Ploy::Series::_getBinned = ( arr = [], bins = 10, width = NaN, includeZero = tru
     width: width
     binned: binned
   }
-Ploy::Series::logs = () ->
+
+Twokeys::Series::logs = () ->
   if !@data?.logs?
     @data?.logs = @_getLogs( @data.original )
   @data.logs
 
-Ploy::Series::_getLogs = (arr = []) ->
+Twokeys::Series::_getLogs = (arr = []) ->
   results = []
   results.push( Math.log( val ) ) for val in arr
   results
 
-Ploy::Series::roots = () ->
+Twokeys::Series::roots = () ->
   if !@data?.roots?
     @data?.roots = @_getRoots( @data.original )
   @data.roots
 
-Ploy::Series::_getRoots = (arr = []) ->
+Twokeys::Series::_getRoots = (arr = []) ->
   results = []
   results.push( Math.sqrt( val ) ) for val in arr
   results
 
-Ploy::Series::inverse = () ->
+Twokeys::Series::inverse = () ->
   if !@data?.inverse?
     @data?.inverse = @_getInverse( @data.original )
   @data.inverse
 
-Ploy::Series::_getInverse = (arr = []) ->
+Twokeys::Series::_getInverse = (arr = []) ->
   results = []
   results.push( 1 / val ) for val in arr
   results
 
-Ploy::Series::hanning = () ->
+Twokeys::Series::hanning = () ->
   if !@data?.hanning?
     @data?.hanning = @_getSkipMeans( @data.original )
   @data.hanning
 
-Ploy::Series::_getSkipMeans = (arr = []) ->
+Twokeys::Series::_getSkipMeans = (arr = []) ->
   results = []
   for val, i in arr
     unless 0 is i or ( ( arr.length - 1 ) is i )
@@ -491,13 +487,13 @@ Ploy::Series::_getSkipMeans = (arr = []) ->
   results.push(arr[arr.length - 1 ])
   results
 
-Ploy::Series::inside = () ->
+Twokeys::Series::inside = () ->
   if !@data?.inside?
     @iqr()
     @data?.inside = @_getInside()
   @data.inside
 
-Ploy::Series::_jitter = (arr = [], passes = 1, floor = NaN, multiplier = Ploy::DEFAULT_JITTER_MULTIPLIER, weight = NaN, current = 0) ->
+Twokeys::Series::_jitter = (arr = [], passes = 1, floor = NaN, multiplier = Twokeys::DEFAULT_JITTER_MULTIPLIER, weight = NaN, current = 0) ->
   current = current + 1
   if !weight
     weight = ( 1 + Math.floor(num/10) ) * ( if Math.random() > .5 then 1 else -1 )
@@ -512,23 +508,20 @@ Ploy::Series::_jitter = (arr = [], passes = 1, floor = NaN, multiplier = Ploy::D
     return @_jitter(jittered, passes, floor, multiplier, weight, current)
   arr
 
-Ploy::Series::smooth = () ->
+Twokeys::Series::smooth = () ->
   jittered = @_jitter( @data.sorted, 3 )
   if !@data?.smoothed?
     @sorted()
     @data?.smooth = @_getSmooth( @data.original )
-  #console.log('SORTED',@data.sorted)
-  #console.log('JITTERED',jittered)
   @data.rough = @_getRough( @data.original, @data.smooth )
   @data.smooth
 
-Ploy::Series::_getRough = (original, smoothed) ->
+Twokeys::Series::_getRough = (original, smoothed) ->
   residuals = []
   residuals.push( original[ x ] - smoothed[ x ] ) for x in [0..original.length - 1]
-  console.log('residuals',original.length, smoothed.length)
   return residuals
 
-Ploy::Series::_getSmooth = (arr = [], passes = 3) ->
+Twokeys::Series::_getSmooth = (arr = [], passes = 3) ->
   smoothed = null
   arr = arr.slice(0)
   smoothed = @_smoothMedian(arr, passes)
@@ -539,7 +532,7 @@ Ploy::Series::_getSmooth = (arr = [], passes = 3) ->
   smoothed = @_smoothMedian(arr, passes)
   smoothed
 
-Ploy::Series::_smoothExtremes = (arr = [], passes = 1, current = 0, end = 'both' ) ->
+Twokeys::Series::_smoothExtremes = (arr = [], passes = 1, current = 0, end = 'both' ) ->
   current = current + 1
   arr = arr.slice(0)
   before = arr.slice(0)
@@ -565,13 +558,12 @@ Ploy::Series::_smoothExtremes = (arr = [], passes = 1, current = 0, end = 'both'
   arr
 
 
-Ploy::Series::_smoothSplit = (arr = [], passes = Ploy::DEFAULT_SPLIT_PASSES, current = 0 ) ->
+Twokeys::Series::_smoothSplit = (arr = [], passes = Twokeys::DEFAULT_SPLIT_PASSES, current = 0 ) ->
   current = current + 1
   arr = arr.slice(0)
   before = arr.slice(0)
   splits = []
   if ( current <= passes ) or -1 is passes
-    console.log('split',current)
     t1 = null
     t2 = null
     f1 = null
@@ -587,7 +579,7 @@ Ploy::Series::_smoothSplit = (arr = [], passes = Ploy::DEFAULT_SPLIT_PASSES, cur
     return @_smoothSplit(arr, passes, current)
   arr
 
-Ploy::Series::_smoothMedian = (arr = [], passes = 1, current = 0 ) ->
+Twokeys::Series::_smoothMedian = (arr = [], passes = 1, current = 0 ) ->
   current = current + 1
   arr = arr.slice(0)
   if ( current < passes ) or -1 is passes
@@ -601,7 +593,7 @@ Ploy::Series::_smoothMedian = (arr = [], passes = 1, current = 0 ) ->
     return @_smoothMedian(smoothed, passes, current)
   arr
 
-Ploy::Series::describe = () ->
+Twokeys::Series::describe = () ->
   @data ?= {}
   @data.description =
     original: @data.original
@@ -633,7 +625,7 @@ Ploy::Series::describe = () ->
 
 
 # Series
-Ploy::Points = (options = {}) ->
+Twokeys::Points = (options = {}) ->
   @data ?= {}
   if 'number' is typeof options
     @count = options
@@ -642,10 +634,10 @@ Ploy::Points = (options = {}) ->
     @dimension = options.dimensionality || 2
     @count = options.count || 100
   @data.original = options.data
-  @data.original ?= Ploy::_randomPoints.apply(@,[ @count, @dimension ])
+  @data.original ?= Twokeys::_randomPoints.apply(@,[ @count, @dimension ])
   @
 
-Ploy::Points::describe = () ->
+Twokeys::Points::describe = () ->
   @data ?= {}
   @data.description =
     original: @data.original

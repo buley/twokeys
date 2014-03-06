@@ -6,14 +6,14 @@
     <button id="random" value="random">Random</button>
     <footer>
         <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script> -->
-        <script type="text/javascript" src="./jquery.js"></script>
-        <script type="text/javascript" src="./ploy.js"></script>
+        <script type="text/javascript" src="./vendor/jquery.js"></script>
+        <script type="text/javascript" src="./lib/twokeys.js"></script>
         <script type="text/javascript">
-            ploy = new Ploy( { debug: true } );
+            twokey = new Twokeys( { debug: true } );
             $( '#random' ).on( 'click', function() {
-                var series = new ploy.Series();
+                var series = new twokey.Series();
                 console.log( 'Series', series.describe() );
-                var points = new ploy.Points( { count: 1000 } ) ;
+                var points = new twokey.Points( { count: 1000 } ) ;
                 console.log( 'Points', points.describe() );
             } );
         </script>
