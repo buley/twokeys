@@ -1,4 +1,4 @@
-window.Twokeys = () ->
+Twokeys = () ->
   @
 
 Twokeys::DEFAULT_MAX_RANDOM_INTEGER = 100
