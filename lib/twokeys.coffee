@@ -428,11 +428,8 @@ Twokeys::Series::_getBinned = ( arr = [], bins = 10, width = NaN, includeZero = 
     bin = Math.floor( ( val + -(includeZero) ) / width )
     binned[ bin ] = binned[ bin ] || {}
     if 'undefined' is typeof binned[ bin ].count
-      binned[ bin ].count = 1
       binned[ bin ].from = ( bin * width ) + includeZero
       binned[ bin ].to = ( ( bin + 1 ) * width ) + includeZero - 1
-    else
-      binned[ bin ].count += 1
     if 'undefined' is typeof binned[ bin ].data
       binned[ bin ].data = [ val ]
     else
