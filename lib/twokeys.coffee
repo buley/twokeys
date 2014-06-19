@@ -1,5 +1,6 @@
-Twokeys = () ->
+self.Twokeys = () ->
   @
+
 
 Twokeys::DEFAULT_MAX_RANDOM_INTEGER = 100
 Twokeys::DEFAULT_MIN_RANDOM_INTEGER = 0
