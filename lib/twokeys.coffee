@@ -183,6 +183,7 @@ Twokeys::Series::hinges = () ->
     @data?.hinges = @_getHinges(@data.sorted)
   @data.hinges
 
+# TODO: Doublecheck this esp from 1..how_many
 Twokeys::Series::_getHinges = (arr = [], hinges = 2, result = []) ->
   arr = arr.slice(0)
   total = arr.length
@@ -193,9 +194,9 @@ Twokeys::Series::_getHinges = (arr = [], hinges = 2, result = []) ->
   if true isnt ( hinges > 0 )
     return result
   per = Math.floor( total / hinges )
-  how_many = ( total / per ) - 1
+  how_many = Math.floor( total / per ) - 1
   for step in [0..how_many]
-    fragment = arr.slice(step*per, ((step*per) + per))
+    fragment = arr.slice((step*per), (step*per) + per)
     result.push
       datum: @_getMedian(fragment)
       depth: @_getMedianDepth(fragment, ((step*per)))
@@ -285,8 +286,10 @@ Twokeys::Series::_getOutliers = (arr = [], hinged = []) ->
   results = []
   sorted = @data.sorted
   fences = @data.fences
-  min = Math.min.apply(@, fences)
-  max = Math.max.apply(@, fences)
+  if fences.length is 0
+    return []
+  min = Math.min(fences)
+  max = Math.max(fences)
   for num in sorted
     if num > max or num < min
       results.push(num)
@@ -377,7 +380,9 @@ Twokeys::Series::adjacent = () ->
     @data?.adjacent = @_getAdjacent( @data.sorted, @data.fences )
   @data.adjacent
 
-Twokeys::Series::_getAdjacent = ( arr = [], fences = {} ) ->
+Twokeys::Series::_getAdjacent = ( arr = [], fences = [] ) ->
+  if fences.length is 0
+    return []
   low = fences[ 0 ]
   lows = []
   high = fences[ 1 ]
@@ -387,6 +392,7 @@ Twokeys::Series::_getAdjacent = ( arr = [], fences = {} ) ->
     if val < high then highs.push val
   lows.sort()
   highs.sort()
+
   [ lows[0], highs[ highs.length - 1 ] ]
 
 
