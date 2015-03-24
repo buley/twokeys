@@ -1,0 +1,23 @@
+{
+  "name": "twokeys",
+  "version": "0.0.1",
+  "homepage": "",
+  "authors": [
+    "Taylor Buley (taylor.buley@mcnaughton.media)"
+  ],
+  "description": "Data series analysis in 1k worth of compiled JavaScript",
+  "main": "lib/twokeys.min.js",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "vendor",
+    "index.html"
+  ]
+}
