@@ -1,4 +1,8 @@
 
+# About
+
+Twokeys is a small JavaScript library (<1kb minified and gzipped) that offers core data exploration techniques such as summary, binning and smoothing. The library is named after  John Tukey, a founding mind in [data exploration and analysis](http://en.wikipedia.org/wiki/Exploratory_data_analysis) and a personal hero of its author.
+
 # Examples
 
     var twokeys = new Twokeys(),
