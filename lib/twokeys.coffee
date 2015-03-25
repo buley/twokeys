@@ -1,6 +1,7 @@
 define [], () ->
 
   Twokeys = () ->
+    @smoothed = false
     @
 
   Twokeys::DEFAULT_MAX_RANDOM_INTEGER = 100
@@ -327,7 +328,7 @@ define [], () ->
         if num is arr[ _decr ]
           isTie = true
           tiedCount += 1
-          if NaN isnt tiedRank and false is isTie
+          if !isNaN(tiedRank) and false is isTie
             tiedNumbers.push num
             ranked.push tiedNumbers
             reset()
@@ -400,7 +401,6 @@ define [], () ->
   Twokeys::Series::binned = (bins = NaN) ->
     if !@data?.binned?
       @sorted()
-      @mode
       @data?.binned = @_getBinned( @data.sorted, @data.fences, bins )
     @data.binned
 
@@ -419,7 +419,7 @@ define [], () ->
         binned: []
       }
     extremes = @data.extremes
-    if !width and extremes.length is 2
+    if !!extremes and !width and extremes.length is 2
       width = ( extremes[ 1 ] - extremes[ 0 ] ) / ( Math.log( arr.length ) / Math.LN2 )
       width = Math.floor( width )
       areIntegers = true
@@ -500,12 +500,12 @@ define [], () ->
 
   Twokeys::Series::_jitter = (arr = [], passes = 1, floor = NaN, multiplier = Twokeys::DEFAULT_JITTER_MULTIPLIER, weight = NaN, current = 0) ->
     current = current + 1
-    if !weight
-      weight = ( 1 + Math.floor(num/10) ) * ( if Math.random() > .5 then 1 else -1 )
     arr = arr.slice(0)
     if ( current <= passes )
       jittered = []
       for num in arr
+        if !weight && !isNaN(weight)
+          weight = ( 1 + Math.floor(num/10) ) * ( if Math.random() > .5 then 1 else -1 )
         value = Math.random() * multiplier * ( 1 + Math.floor(num/10) )
         value = ( num + Math.floor( Math.random() * multiplier * weight ) )
         if !isNaN floor and value < floor then value = floor

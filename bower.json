@@ -5,7 +5,7 @@
   "authors": [
     "Taylor Buley (taylor.buley@mcnaughton.media)"
   ],
-  "description": "Data series analysis in 1k worth of compiled JavaScript",
+  "description": "Data exploration in JavaScript",
   "main": "lib/twokeys.min.js",
   "moduleType": [
     "amd"
