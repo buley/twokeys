@@ -645,3 +645,4 @@
       original: @data.original
     @data.description
 
+  window.Twokeys = window.Twokeys || Twokeys;
