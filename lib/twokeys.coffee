@@ -1,5 +1,3 @@
-define [], () ->
-
   Twokeys = () ->
     @smoothed = false
     @
@@ -646,6 +644,4 @@ define [], () ->
     @data.description =
       original: @data.original
     @data.description
-
-  Twokeys
 
