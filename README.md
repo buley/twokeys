@@ -191,7 +191,7 @@ You can also run operations singularly:
 	analysis.mode()
 	> []
 	
-	analysis.fencees()
+	analysis.fences()
 	> [4.5,100.5]
 	
 	analysis.iqr()
