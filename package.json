@@ -2,9 +2,10 @@
   "name": "twokeys",
   "version": "1.0.0",
   "description": "data manipulation toolkit",
-  "main": "index.js",
+  "main": "dist/twokeys.js",
   "directories": {
-    "lib": "lib"
+    "dist": "dist",
+    "src": "src"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
