@@ -1,0 +1,22 @@
+{
+  "name": "twokeys",
+  "version": "1.0.0",
+  "description": "data manipulation toolkit",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buley/twokeys.git"
+  },
+  "author": "Taylor Buley <buley@outlook.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/buley/twokeys/issues"
+  },
+  "homepage": "https://github.com/buley/twokeys#readme"
+}
