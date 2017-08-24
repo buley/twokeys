@@ -1136,6 +1136,6 @@
     return this.data.description;
   };
 
-  window.Twokeys = window.Twokeys || Twokeys;
+  (window || exports).Twokeys = Twokeys;
 
 }).call(this);
