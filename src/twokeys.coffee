@@ -644,6 +644,8 @@
     @data.description =
       original: @data.original
     @data.description
-
-  (window||exports).Twokeys = Twokeys;
+  if (typeof module != 'undefined' && module.exports)
+    module.exports = Twokeys;
+  else
+    window.Twokeys = Twokeys;
 

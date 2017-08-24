@@ -1136,6 +1136,10 @@
     return this.data.description;
   };
 
-  (window || exports).Twokeys = Twokeys;
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Twokeys;
+  } else {
+    window.Twokeys = Twokeys;
+  }
 
 }).call(this);

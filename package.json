@@ -1,6 +1,6 @@
 {
   "name": "twokeys",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "data manipulation toolkit",
   "main": "index.js",
   "directories": {
