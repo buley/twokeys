@@ -1,0 +1,26 @@
+{
+  "name": "@buley/twokeys-mcp",
+  "version": "2.0.0",
+  "description": "MCP server exposing Twokeys statistical functions as tools",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "twokeys-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@affectively/mcp-framework": "^1.0.0",
+    "twokeys": "workspace:*",
+    "@buley/twokeys-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}

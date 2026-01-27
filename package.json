@@ -1,22 +1,27 @@
 {
-  "name": "twokeys",
-  "version": "1.0.3",
-  "description": "data manipulation toolkit",
-  "main": "index.js",
-  "directories": {
-    "dist": "dist"
-  },
+  "name": "@twokeys/workspace",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "nx run-many -t build",
+    "test": "nx run-many -t test",
+    "lint": "nx run-many -t lint",
+    "dev": "nx run-many -t dev",
+    "dev:playground": "nx run playground:dev",
+    "dev:mcp": "nx run mcp-server:dev"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/buley/twokeys.git"
+  "devDependencies": {
+    "@types/bun": "latest",
+    "nx": "16.10.0",
+    "typescript": "^5.3.0",
+    "prettier": "^3.2.0"
   },
-  "author": "Taylor Buley <buley@outlook.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/buley/twokeys/issues"
+  "engines": {
+    "node": ">=18"
   },
-  "homepage": "https://github.com/buley/twokeys#readme"
+  "packageManager": "bun@1.0.0"
 }

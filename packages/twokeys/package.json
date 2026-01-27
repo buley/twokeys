@@ -1,0 +1,58 @@
+{
+  "name": "twokeys",
+  "version": "2.0.0",
+  "description": "A small data exploration and manipulation library, named after John Tukey",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buley/twokeys.git"
+  },
+  "keywords": [
+    "statistics",
+    "data-analysis",
+    "exploratory-data-analysis",
+    "eda",
+    "tukey",
+    "median",
+    "mean",
+    "mode",
+    "quartiles",
+    "outliers",
+    "smoothing",
+    "binning"
+  ],
+  "author": "Taylor Buley <buley@outlook.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/buley/twokeys/issues"
+  },
+  "homepage": "https://github.com/buley/twokeys#readme",
+  "dependencies": {
+    "@buley/twokeys-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}

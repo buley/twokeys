@@ -1,0 +1,36 @@
+{
+  "name": "@buley/twokeys-wasm",
+  "version": "2.0.0",
+  "description": "WebAssembly implementation of Twokeys statistical functions",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "build"
+  ],
+  "scripts": {
+    "asbuild:debug": "asc assembly/index.ts --target debug",
+    "asbuild:release": "asc assembly/index.ts --target release",
+    "asbuild": "npm run asbuild:debug && npm run asbuild:release",
+    "build": "npm run asbuild && tsup",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@buley/twokeys-types": "workspace:*"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.27.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "@types/bun": "latest"
+  }
+}
