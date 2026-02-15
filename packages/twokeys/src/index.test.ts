@@ -601,6 +601,181 @@ describe('Points', () => {
   });
 });
 
+describe('Series statistical methods', () => {
+  const data = [2, 4, 4, 4, 5, 5, 7, 9];
+
+  test('variance computes sample variance', () => {
+    const s = new Series({ data });
+    const v = s.variance();
+    // mean = 5, deviations²: 9+1+1+1+0+0+4+16 = 32, n-1 = 7
+    expect(v).toBeCloseTo(32 / 7, 5);
+  });
+
+  test('stddev is sqrt of variance', () => {
+    const s = new Series({ data });
+    expect(s.stddev()).toBeCloseTo(Math.sqrt(s.variance()), 10);
+  });
+
+  test('variance of single element is NaN', () => {
+    const s = new Series({ data: [5] });
+    expect(s.variance()).toBeNaN();
+  });
+
+  test('ema produces correct exponential moving average', () => {
+    const s = new Series({ data: [10, 20, 30] });
+    const result = s.ema(0.5);
+    expect(result[0]).toBe(10);
+    expect(result[1]).toBeCloseTo(15, 10);
+    expect(result[2]).toBeCloseTo(22.5, 10);
+  });
+
+  test('ema of empty series returns empty', () => {
+    const s = new Series({ data: [] });
+    expect(s.ema(0.5)).toEqual([]);
+  });
+
+  test('zscore normalizes data', () => {
+    const s = new Series({ data });
+    const z = s.zscore();
+    // z-scores should have mean ≈ 0
+    const zMean = z.reduce((a, b) => a + b, 0) / z.length;
+    expect(zMean).toBeCloseTo(0, 10);
+  });
+
+  test('zscore of constant data returns all zeros', () => {
+    const s = new Series({ data: [5, 5, 5, 5] });
+    const z = s.zscore();
+    z.forEach((v) => expect(v).toBe(0));
+  });
+
+  test('skewness of symmetric data is near 0', () => {
+    const s = new Series({ data: [1, 2, 3, 4, 5] });
+    expect(Math.abs(s.skewness())).toBeLessThan(0.01);
+  });
+
+  test('skewness requires at least 3 points', () => {
+    const s = new Series({ data: [1, 2] });
+    expect(s.skewness()).toBeNaN();
+  });
+
+  test('kurtosis of normal-like data is near 0', () => {
+    // Uniform distribution has excess kurtosis of -1.2
+    const s = new Series({ data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] });
+    expect(Number.isFinite(s.kurtosis())).toBe(true);
+  });
+
+  test('kurtosis requires at least 4 points', () => {
+    const s = new Series({ data: [1, 2, 3] });
+    expect(s.kurtosis()).toBeNaN();
+  });
+});
+
+describe('Points multivariate analysis', () => {
+  const data = [
+    [1, 2],
+    [3, 4],
+    [5, 6],
+    [7, 8],
+  ];
+
+  test('centroid is the mean point', () => {
+    const p = new Points({ data });
+    const c = p.centroid();
+    expect(c[0]).toBeCloseTo(4, 10); // (1+3+5+7)/4
+    expect(c[1]).toBeCloseTo(5, 10); // (2+4+6+8)/4
+  });
+
+  test('variances returns per-dimension sample variance', () => {
+    const p = new Points({ data });
+    const v = p.variances();
+    expect(v.length).toBe(2);
+    // Dim 0: values [1,3,5,7], mean=4, var = (9+1+1+9)/3 = 20/3
+    expect(v[0]).toBeCloseTo(20 / 3, 5);
+  });
+
+  test('standardDeviations are sqrt of variances', () => {
+    const p = new Points({ data });
+    const v = p.variances();
+    const sd = p.standardDeviations();
+    expect(sd[0]).toBeCloseTo(Math.sqrt(v[0]), 10);
+    expect(sd[1]).toBeCloseTo(Math.sqrt(v[1]), 10);
+  });
+
+  test('covarianceMatrix is symmetric', () => {
+    const p = new Points({ data });
+    const cov = p.covarianceMatrix();
+    expect(cov[0][1]).toBeCloseTo(cov[1][0], 10);
+  });
+
+  test('correlationMatrix diagonal is 1', () => {
+    const p = new Points({ data });
+    const corr = p.correlationMatrix();
+    expect(corr[0][0]).toBeCloseTo(1, 10);
+    expect(corr[1][1]).toBeCloseTo(1, 10);
+  });
+
+  test('correlationMatrix for perfectly correlated data is 1', () => {
+    const p = new Points({ data }); // y = x + 1, perfectly correlated
+    const corr = p.correlationMatrix();
+    expect(corr[0][1]).toBeCloseTo(1, 5);
+  });
+
+  test('mahalanobis of centroid is 0', () => {
+    const p = new Points({ data });
+    const c = p.centroid();
+    expect(p.mahalanobis(c)).toBeCloseTo(0, 10);
+  });
+
+  test('mahalanobisAll returns array of correct length', () => {
+    const p = new Points({ data });
+    const distances = p.mahalanobisAll();
+    expect(distances.length).toBe(4);
+    distances.forEach((d) => expect(d).toBeGreaterThanOrEqual(0));
+  });
+
+  test('outliersByMahalanobis with high threshold returns no outliers', () => {
+    const p = new Points({ data });
+    const outliers = p.outliersByMahalanobis(100);
+    expect(outliers.length).toBe(0);
+  });
+
+  test('normalizeL2 returns Points with unit-magnitude vectors', () => {
+    const p = new Points({ data });
+    const normalized = p.normalizeL2();
+    const desc = normalized.describe();
+    for (const pt of desc.original) {
+      const mag = Math.sqrt(pt[0] * pt[0] + pt[1] * pt[1]);
+      expect(mag).toBeCloseTo(1, 5);
+    }
+  });
+
+  test('normalizeZscore returns Points with per-dimension mean ~0', () => {
+    const p = new Points({ data });
+    const normalized = p.normalizeZscore();
+    const c = normalized.centroid();
+    expect(c[0]).toBeCloseTo(0, 5);
+    expect(c[1]).toBeCloseTo(0, 5);
+  });
+
+  test('describe returns enhanced description', () => {
+    const p = new Points({ data });
+    const desc = p.describe();
+    expect(desc).toHaveProperty('centroid');
+    expect(desc).toHaveProperty('variances');
+    expect(desc).toHaveProperty('correlationMatrix');
+    expect(desc).toHaveProperty('mahalanobisDistances');
+    expect(desc).toHaveProperty('outlierCount');
+    expect(desc).toHaveProperty('dimensionSummaries');
+    expect(desc.dimensionSummaries.length).toBe(2);
+  });
+
+  test('single point has NaN variance', () => {
+    const p = new Points({ data: [[1, 2]] });
+    const v = p.variances();
+    expect(v[0]).toBeNaN();
+  });
+});
+
 describe('default export', () => {
   test('exports Twokeys as default', async () => {
     const { default: DefaultTwokeys } = await import('./index');

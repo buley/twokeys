@@ -91,6 +91,12 @@ export interface SeriesDescription {
 
 export interface PointsDescription {
   original: number[][];
+  centroid: number[];
+  variances: number[];
+  correlationMatrix: number[][];
+  mahalanobisDistances: number[];
+  outlierCount: number;
+  dimensionSummaries: SeriesDescription[];
 }
 
 // Constants
@@ -151,6 +157,10 @@ export class Series {
     median?: number;
     medianDepth?: number;
     mean?: number;
+    variance?: number;
+    stddev?: number;
+    skewness?: number;
+    kurtosis?: number;
     mode?: ModeResult;
     extremes?: number[];
     counts?: [number, number][];
@@ -242,6 +252,107 @@ export class Series {
       total += num;
     }
     return total / arr.length;
+  }
+
+  // Variance (sample variance: Σ(x - mean)² / (n - 1))
+  variance(): number {
+    if (this.data.variance === undefined) {
+      const m = this.mean();
+      const arr = this.data.original;
+      if (arr.length < 2) {
+        this.data.variance = NaN;
+      } else {
+        let sum = 0;
+        for (const val of arr) {
+          const delta = val - m;
+          sum += delta * delta;
+        }
+        this.data.variance = sum / (arr.length - 1);
+      }
+    }
+    return this.data.variance;
+  }
+
+  // Standard deviation: sqrt(variance)
+  stddev(): number {
+    if (this.data.stddev === undefined) {
+      this.data.stddev = Math.sqrt(this.variance());
+    }
+    return this.data.stddev;
+  }
+
+  // Exponential moving average series
+  ema(alpha: number): number[] {
+    const arr = this.data.original;
+    if (arr.length === 0) return [];
+    const result: number[] = [arr[0]];
+    for (let i = 1; i < arr.length; i += 1) {
+      const prev = result[i - 1];
+      result.push(prev * (1 - alpha) + arr[i] * alpha);
+    }
+    return result;
+  }
+
+  // Z-score normalization: (x - mean) / stddev
+  zscore(): number[] {
+    const m = this.mean();
+    const s = this.stddev();
+    if (s === 0 || isNaN(s)) {
+      return this.data.original.map(() => 0);
+    }
+    return this.data.original.map((val) => (val - m) / s);
+  }
+
+  // Fisher-Pearson skewness: n/((n-1)(n-2)) * Σ((x-mean)/stddev)³
+  skewness(): number {
+    if (this.data.skewness === undefined) {
+      const arr = this.data.original;
+      const n = arr.length;
+      if (n < 3) {
+        this.data.skewness = NaN;
+      } else {
+        const m = this.mean();
+        const s = this.stddev();
+        if (s === 0) {
+          this.data.skewness = 0;
+        } else {
+          let sum = 0;
+          for (const val of arr) {
+            const z = (val - m) / s;
+            sum += z * z * z;
+          }
+          this.data.skewness = (n / ((n - 1) * (n - 2))) * sum;
+        }
+      }
+    }
+    return this.data.skewness;
+  }
+
+  // Excess kurtosis: adjusted fourth moment minus 3
+  kurtosis(): number {
+    if (this.data.kurtosis === undefined) {
+      const arr = this.data.original;
+      const n = arr.length;
+      if (n < 4) {
+        this.data.kurtosis = NaN;
+      } else {
+        const m = this.mean();
+        const s = this.stddev();
+        if (s === 0) {
+          this.data.kurtosis = 0;
+        } else {
+          let sum = 0;
+          for (const val of arr) {
+            const z = (val - m) / s;
+            sum += z * z * z * z;
+          }
+          const rawKurt = (n * (n + 1)) / ((n - 1) * (n - 2) * (n - 3)) * sum;
+          const correction = (3 * (n - 1) * (n - 1)) / ((n - 2) * (n - 3));
+          this.data.kurtosis = rawKurt - correction;
+        }
+      }
+    }
+    return this.data.kurtosis;
   }
 
   // Mode
@@ -1060,6 +1171,12 @@ export class Series {
 export class Points {
   private data: {
     original: number[][];
+    centroid?: number[];
+    variances?: number[];
+    stddevs?: number[];
+    covarianceMatrix?: number[][];
+    correlationMatrix?: number[][];
+    mahalanobisDistances?: number[];
     description?: PointsDescription;
   };
   private dimension: number;
@@ -1078,12 +1195,227 @@ export class Points {
       this.data = {
         original: options.data ?? randomPoints(this.count, this.dimension),
       };
+      if (options.data && options.data.length > 0) {
+        this.dimension = options.data[0].length;
+        this.count = options.data.length;
+      }
     }
   }
 
+  // Mean point across all dimensions
+  centroid(): number[] {
+    if (!this.data.centroid) {
+      const pts = this.data.original;
+      const dim = this.dimension;
+      const n = pts.length;
+      if (n === 0) {
+        this.data.centroid = [];
+        return this.data.centroid;
+      }
+      const sums = new Array<number>(dim).fill(0);
+      for (const pt of pts) {
+        for (let d = 0; d < dim; d += 1) {
+          sums[d] += pt[d] ?? 0;
+        }
+      }
+      this.data.centroid = sums.map((s) => s / n);
+    }
+    return this.data.centroid;
+  }
+
+  // Per-dimension sample variance
+  variances(): number[] {
+    if (!this.data.variances) {
+      const pts = this.data.original;
+      const dim = this.dimension;
+      const n = pts.length;
+      if (n < 2) {
+        this.data.variances = new Array<number>(dim).fill(NaN);
+        return this.data.variances;
+      }
+      const means = this.centroid();
+      const sums = new Array<number>(dim).fill(0);
+      for (const pt of pts) {
+        for (let d = 0; d < dim; d += 1) {
+          const delta = (pt[d] ?? 0) - means[d];
+          sums[d] += delta * delta;
+        }
+      }
+      this.data.variances = sums.map((s) => s / (n - 1));
+    }
+    return this.data.variances;
+  }
+
+  // Per-dimension standard deviation
+  standardDeviations(): number[] {
+    if (!this.data.stddevs) {
+      this.data.stddevs = this.variances().map((v) => Math.sqrt(v));
+    }
+    return this.data.stddevs;
+  }
+
+  // Full covariance matrix
+  covarianceMatrix(): number[][] {
+    if (!this.data.covarianceMatrix) {
+      const pts = this.data.original;
+      const dim = this.dimension;
+      const n = pts.length;
+      const means = this.centroid();
+
+      const cov: number[][] = Array.from({ length: dim }, () =>
+        new Array<number>(dim).fill(0),
+      );
+
+      if (n < 2) {
+        this.data.covarianceMatrix = cov;
+        return this.data.covarianceMatrix;
+      }
+
+      for (const pt of pts) {
+        for (let i = 0; i < dim; i += 1) {
+          const di = (pt[i] ?? 0) - means[i];
+          for (let j = i; j < dim; j += 1) {
+            const dj = (pt[j] ?? 0) - means[j];
+            cov[i][j] += di * dj;
+          }
+        }
+      }
+
+      for (let i = 0; i < dim; i += 1) {
+        for (let j = i; j < dim; j += 1) {
+          cov[i][j] /= n - 1;
+          cov[j][i] = cov[i][j];
+        }
+      }
+
+      this.data.covarianceMatrix = cov;
+    }
+    return this.data.covarianceMatrix;
+  }
+
+  // Pearson correlation matrix
+  correlationMatrix(): number[][] {
+    if (!this.data.correlationMatrix) {
+      const cov = this.covarianceMatrix();
+      const dim = this.dimension;
+      const stddevs = this.standardDeviations();
+
+      const corr: number[][] = Array.from({ length: dim }, () =>
+        new Array<number>(dim).fill(0),
+      );
+
+      for (let i = 0; i < dim; i += 1) {
+        for (let j = 0; j < dim; j += 1) {
+          const denom = stddevs[i] * stddevs[j];
+          corr[i][j] = denom === 0 ? (i === j ? 1 : 0) : cov[i][j] / denom;
+        }
+      }
+
+      this.data.correlationMatrix = corr;
+    }
+    return this.data.correlationMatrix;
+  }
+
+  // Mahalanobis distance of a single point from the distribution
+  mahalanobis(point: number[]): number {
+    const means = this.centroid();
+    const vars = this.variances();
+    const dim = Math.min(point.length, means.length, vars.length);
+    if (dim === 0) return 0;
+
+    let sum = 0;
+    for (let i = 0; i < dim; i += 1) {
+      const delta = (point[i] ?? 0) - means[i];
+      const v = Math.max(vars[i], 1e-8);
+      sum += (delta * delta) / v;
+    }
+    return Math.sqrt(sum);
+  }
+
+  // Mahalanobis distance for each stored point
+  mahalanobisAll(): number[] {
+    if (!this.data.mahalanobisDistances) {
+      const means = this.centroid();
+      const vars = this.variances();
+      this.data.mahalanobisDistances = this.data.original.map((pt) => {
+        const dim = Math.min(pt.length, means.length, vars.length);
+        let sum = 0;
+        for (let i = 0; i < dim; i += 1) {
+          const delta = (pt[i] ?? 0) - means[i];
+          const v = Math.max(vars[i], 1e-8);
+          sum += (delta * delta) / v;
+        }
+        return Math.sqrt(sum);
+      });
+    }
+    return this.data.mahalanobisDistances;
+  }
+
+  // Outlier detection: points with Mahalanobis distance > threshold
+  outliersByMahalanobis(threshold: number = 3.0): number[][] {
+    const distances = this.mahalanobisAll();
+    const results: number[][] = [];
+    for (let i = 0; i < distances.length; i += 1) {
+      if (distances[i] > threshold) {
+        results.push(this.data.original[i]);
+      }
+    }
+    return results;
+  }
+
+  // L2-normalize all points (returns new Points)
+  normalizeL2(): Points {
+    const normalized = this.data.original.map((pt) => {
+      let sumSq = 0;
+      for (const v of pt) {
+        sumSq += v * v;
+      }
+      const mag = Math.sqrt(sumSq);
+      if (mag === 0) return pt.map(() => 0);
+      return pt.map((v) => v / mag);
+    });
+    return new Points({ data: normalized });
+  }
+
+  // Z-score normalize per dimension (returns new Points)
+  normalizeZscore(): Points {
+    const means = this.centroid();
+    const stddevs = this.standardDeviations();
+    const dim = this.dimension;
+
+    const normalized = this.data.original.map((pt) => {
+      const result = new Array<number>(dim);
+      for (let d = 0; d < dim; d += 1) {
+        const s = stddevs[d];
+        result[d] = s === 0 || isNaN(s) ? 0 : ((pt[d] ?? 0) - means[d]) / s;
+      }
+      return result;
+    });
+    return new Points({ data: normalized });
+  }
+
+  // Full description
   describe(): PointsDescription {
+    const distances = this.mahalanobisAll();
+    const outlierCount = distances.filter((d) => d > 3.0).length;
+
+    // Build per-dimension Series summaries
+    const dim = this.dimension;
+    const dimensionSummaries: SeriesDescription[] = [];
+    for (let d = 0; d < dim; d += 1) {
+      const values = this.data.original.map((pt) => pt[d] ?? 0);
+      const series = new Series({ data: values });
+      dimensionSummaries.push(series.describe());
+    }
+
     this.data.description = {
       original: this.data.original,
+      centroid: this.centroid(),
+      variances: this.variances(),
+      correlationMatrix: this.correlationMatrix(),
+      mahalanobisDistances: distances,
+      outlierCount,
+      dimensionSummaries,
     };
     return this.data.description;
   }
@@ -1114,6 +1446,11 @@ export class Twokeys {
   static randomPoint = randomPoint;
   static randomPoints = randomPoints;
 }
+
+export * from './distance';
+export * from './graph';
+export * from './graph-eda';
+export * from './gds';
 
 // Default export
 export default Twokeys;
