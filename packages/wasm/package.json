@@ -1,7 +1,7 @@
 {
   "name": "@buley/twokeys-wasm",
-  "version": "2.0.0",
-  "description": "WebAssembly implementation of Twokeys statistical functions",
+  "version": "3.0.0",
+  "description": "WASM-accelerated statistics, distance & analysis for Twokeys",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

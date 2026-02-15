@@ -1,11 +1,11 @@
 (module
  (type $0 (func (param i32) (result i32)))
- (type $1 (func (param i32)))
- (type $2 (func (param i32) (result f64)))
- (type $3 (func))
- (type $4 (func (param i32 i32)))
+ (type $1 (func (param i32) (result f64)))
+ (type $2 (func (param i32)))
+ (type $3 (func (param i32 i32) (result f64)))
+ (type $4 (func))
  (type $5 (func (param i32 i32) (result i32)))
- (type $6 (func (param i32 i32) (result f64)))
+ (type $6 (func (param i32 i32)))
  (type $7 (func (param f64 f64 f64) (result i32)))
  (type $8 (func (param i32 i32 i32)))
  (type $9 (func (param i32 i32 i32 i32)))
@@ -17,6 +17,8 @@
  (type $15 (func (param i32 f64 i32)))
  (type $16 (func (param i32 f64)))
  (type $17 (func (param i32 f64 f64) (result i32)))
+ (type $18 (func (param i32 f64) (result i32)))
+ (type $19 (func (param i32 i32 i32) (result f64)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
  (global $~lib/rt/tlsf/ROOT (mut i32) (i32.const 0))
  (global $~lib/rt/itcms/total (mut i32) (i32.const 0))
@@ -92,6 +94,19 @@
  (export "inverse" (func $export:assembly/index/inverse))
  (export "hanning" (func $export:assembly/index/hanning))
  (export "smooth" (func $export:assembly/index/smooth))
+ (export "variance" (func $export:assembly/index/variance))
+ (export "stddev" (func $export:assembly/index/stddev))
+ (export "skewness" (func $export:assembly/index/skewness))
+ (export "kurtosis" (func $export:assembly/index/kurtosis))
+ (export "emaCalc" (func $export:assembly/index/emaCalc))
+ (export "zscoreCalc" (func $export:assembly/index/zscoreCalc))
+ (export "roughCalc" (func $export:assembly/index/roughCalc))
+ (export "cosineSim" (func $export:assembly/index/cosineSim))
+ (export "sqEuclideanDist" (func $export:assembly/index/sqEuclideanDist))
+ (export "euclideanDist" (func $export:assembly/index/euclideanDist))
+ (export "manhattanDist" (func $export:assembly/index/manhattanDist))
+ (export "mahalanobisDist" (func $export:assembly/index/mahalanobisDist))
+ (export "normalizeL2Vec" (func $export:assembly/index/normalizeL2Vec))
  (start $~start)
  (func $~lib/rt/tlsf/removeBlock (param $0 i32) (param $1 i32)
   (local $2 i32)
@@ -2940,6 +2955,73 @@
   global.set $~lib/memory/__stack_pointer
   local.get $1
  )
+ (func $assembly/index/mean (param $0 i32) (result f64)
+  (local $1 i32)
+  (local $2 i32)
+  (local $3 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.store
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $~lib/typedarray/Float64Array#get:length
+  local.tee $2
+  i32.eqz
+  if
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   f64.const nan:0x8000000000000
+   return
+  end
+  loop $for-loop|0
+   local.get $1
+   local.get $2
+   i32.lt_s
+   if
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $3
+    local.get $0
+    local.get $1
+    call $~lib/typedarray/Float64Array#__get
+    f64.add
+    local.set $3
+    local.get $1
+    i32.const 1
+    i32.add
+    local.set $1
+    br $for-loop|0
+   end
+  end
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $3
+  local.get $2
+  f64.convert_i32_s
+  f64.div
+ )
  (func $assembly/index/medianSorted (param $0 i32) (result f64)
   (local $1 f64)
   (local $2 i32)
@@ -3603,7 +3685,7 @@
     select
     local.set $1
    end
-   block $__inlined_func$~lib/rt/itcms/__renew$265
+   block $__inlined_func$~lib/rt/itcms/__renew$291
     local.get $3
     i32.const 20
     i32.sub
@@ -3621,7 +3703,7 @@
      i32.store offset=16
      local.get $3
      local.set $2
-     br $__inlined_func$~lib/rt/itcms/__renew$265
+     br $__inlined_func$~lib/rt/itcms/__renew$291
     end
     local.get $1
     local.get $4
@@ -5256,6 +5338,235 @@
   global.set $~lib/memory/__stack_pointer
   local.get $4
  )
+ (func $assembly/index/variance (param $0 i32) (result f64)
+  (local $1 f64)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.store
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $~lib/typedarray/Float64Array#get:length
+  local.tee $3
+  i32.const 2
+  i32.lt_s
+  if
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   f64.const nan:0x8000000000000
+   return
+  end
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $assembly/index/mean
+  local.set $4
+  loop $for-loop|0
+   local.get $2
+   local.get $3
+   i32.lt_s
+   if
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $1
+    local.get $0
+    local.get $2
+    call $~lib/typedarray/Float64Array#__get
+    local.get $4
+    f64.sub
+    local.tee $1
+    local.get $1
+    f64.mul
+    f64.add
+    local.set $1
+    local.get $2
+    i32.const 1
+    i32.add
+    local.set $2
+    br $for-loop|0
+   end
+  end
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $1
+  local.get $3
+  i32.const 1
+  i32.sub
+  f64.convert_i32_s
+  f64.div
+ )
+ (func $assembly/index/stddev (param $0 i32) (result f64)
+  (local $1 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.store
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $assembly/index/variance
+  f64.sqrt
+  local.set $1
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $1
+ )
+ (func $assembly/index/sqEuclideanDist (param $0 i32) (param $1 i32) (result f64)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 f64)
+  (local $5 i32)
+  (local $6 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.store
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $~lib/typedarray/Float64Array#get:length
+  local.set $5
+  local.get $1
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  local.get $1
+  i32.store
+  local.get $1
+  call $~lib/typedarray/Float64Array#get:length
+  local.get $5
+  i32.lt_s
+  if
+   local.get $0
+   local.set $2
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+  else
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store
+  end
+  local.get $2
+  call $~lib/typedarray/Float64Array#get:length
+  local.set $2
+  loop $for-loop|0
+   local.get $2
+   local.get $3
+   i32.gt_s
+   if
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $~lib/typedarray/Float64Array#get:length
+    local.get $3
+    i32.gt_s
+    if (result f64)
+     global.get $~lib/memory/__stack_pointer
+     local.get $0
+     i32.store
+     local.get $0
+     local.get $3
+     call $~lib/typedarray/Float64Array#__get
+    else
+     f64.const 0
+    end
+    local.set $6
+    global.get $~lib/memory/__stack_pointer
+    local.get $1
+    i32.store
+    local.get $4
+    local.get $6
+    local.get $1
+    call $~lib/typedarray/Float64Array#get:length
+    local.get $3
+    i32.gt_s
+    if (result f64)
+     global.get $~lib/memory/__stack_pointer
+     local.get $1
+     i32.store
+     local.get $1
+     local.get $3
+     call $~lib/typedarray/Float64Array#__get
+    else
+     f64.const 0
+    end
+    f64.sub
+    local.tee $4
+    local.get $4
+    f64.mul
+    f64.add
+    local.set $4
+    local.get $3
+    i32.const 1
+    i32.add
+    local.set $3
+    br $for-loop|0
+   end
+  end
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $4
+ )
  (func $~lib/arraybuffer/ArrayBuffer#constructor (param $0 i32) (result i32)
   global.get $~lib/memory/__stack_pointer
   i32.const 4
@@ -5389,91 +5700,32 @@
  )
  (func $export:assembly/index/mean (param $0 i32) (result f64)
   (local $1 f64)
-  (local $2 i32)
-  (local $3 i32)
   global.get $~lib/memory/__stack_pointer
   i32.const 4
   i32.sub
   global.set $~lib/memory/__stack_pointer
-  block $folding-inner0
-   global.get $~lib/memory/__stack_pointer
-   i32.const 6116
-   i32.lt_s
-   br_if $folding-inner0
-   global.get $~lib/memory/__stack_pointer
-   local.get $0
-   i32.store
-   block $__inlined_func$assembly/index/mean$270 (result f64)
-    global.get $~lib/memory/__stack_pointer
-    i32.const 4
-    i32.sub
-    global.set $~lib/memory/__stack_pointer
-    global.get $~lib/memory/__stack_pointer
-    i32.const 6116
-    i32.lt_s
-    br_if $folding-inner0
-    global.get $~lib/memory/__stack_pointer
-    i32.const 0
-    i32.store
-    global.get $~lib/memory/__stack_pointer
-    local.get $0
-    i32.store
-    local.get $0
-    call $~lib/typedarray/Float64Array#get:length
-    local.tee $3
-    i32.eqz
-    if
-     global.get $~lib/memory/__stack_pointer
-     i32.const 4
-     i32.add
-     global.set $~lib/memory/__stack_pointer
-     f64.const nan:0x8000000000000
-     br $__inlined_func$assembly/index/mean$270
-    end
-    loop $for-loop|0
-     local.get $2
-     local.get $3
-     i32.lt_s
-     if
-      global.get $~lib/memory/__stack_pointer
-      local.get $0
-      i32.store
-      local.get $1
-      local.get $0
-      local.get $2
-      call $~lib/typedarray/Float64Array#__get
-      f64.add
-      local.set $1
-      local.get $2
-      i32.const 1
-      i32.add
-      local.set $2
-      br $for-loop|0
-     end
-    end
-    global.get $~lib/memory/__stack_pointer
-    i32.const 4
-    i32.add
-    global.set $~lib/memory/__stack_pointer
-    local.get $1
-    local.get $3
-    f64.convert_i32_s
-    f64.div
-   end
-   local.set $1
-   global.get $~lib/memory/__stack_pointer
-   i32.const 4
-   i32.add
-   global.set $~lib/memory/__stack_pointer
-   local.get $1
-   return
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
   end
-  i32.const 38912
-  i32.const 38960
-  i32.const 1
-  i32.const 1
-  call $~lib/builtins/abort
-  unreachable
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $assembly/index/mean
+  local.set $1
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $1
  )
  (func $export:assembly/index/medianSorted (param $0 i32) (result f64)
   (local $1 f64)
@@ -5629,7 +5881,7 @@
    call $~lib/typedarray/Float64Array#constructor
    local.tee $2
    i32.store offset=4
-   block $__inlined_func$assembly/index/extremesSorted$272
+   block $__inlined_func$assembly/index/extremesSorted$297
     local.get $1
     i32.eqz
     if
@@ -5647,7 +5899,7 @@
      i32.const 1
      f64.const nan:0x8000000000000
      call $~lib/typedarray/Float64Array#__set
-     br $__inlined_func$assembly/index/extremesSorted$272
+     br $__inlined_func$assembly/index/extremesSorted$297
     end
     global.get $~lib/memory/__stack_pointer
     local.get $2
@@ -5734,7 +5986,7 @@
    call $~lib/typedarray/Float64Array#constructor
    local.tee $2
    i32.store offset=4
-   block $__inlined_func$assembly/index/extremes$273
+   block $__inlined_func$assembly/index/extremes$298
     local.get $5
     i32.eqz
     if
@@ -5753,7 +6005,7 @@
      i32.const 1
      f64.const nan:0x8000000000000
      call $~lib/typedarray/Float64Array#__set
-     br $__inlined_func$assembly/index/extremes$273
+     br $__inlined_func$assembly/index/extremes$298
     end
     global.get $~lib/memory/__stack_pointer
     local.get $0
@@ -5907,7 +6159,7 @@
    global.get $~lib/memory/__stack_pointer
    local.get $0
    i32.store
-   block $__inlined_func$assembly/index/iqrFromHinges$274
+   block $__inlined_func$assembly/index/iqrFromHinges$299
     local.get $0
     call $~lib/typedarray/Float64Array#get:length
     i32.const 4
@@ -5919,7 +6171,7 @@
      global.set $~lib/memory/__stack_pointer
      f64.const nan:0x8000000000000
      local.set $1
-     br $__inlined_func$assembly/index/iqrFromHinges$274
+     br $__inlined_func$assembly/index/iqrFromHinges$299
     end
     global.get $~lib/memory/__stack_pointer
     local.get $0
@@ -6388,7 +6640,7 @@
    local.get $0
    local.tee $1
    i32.store
-   block $__inlined_func$assembly/index/hanning$279
+   block $__inlined_func$assembly/index/hanning$304
     local.get $0
     call $~lib/typedarray/Float64Array#get:length
     local.tee $3
@@ -6428,7 +6680,7 @@
      i32.const 16
      i32.add
      global.set $~lib/memory/__stack_pointer
-     br $__inlined_func$assembly/index/hanning$279
+     br $__inlined_func$assembly/index/hanning$304
     end
     global.get $~lib/memory/__stack_pointer
     local.get $3
@@ -6636,6 +6888,1376 @@
    i32.add
    global.set $~lib/memory/__stack_pointer
    local.get $0
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/variance (param $0 i32) (result f64)
+  (local $1 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $assembly/index/variance
+  local.set $1
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $1
+ )
+ (func $export:assembly/index/stddev (param $0 i32) (result f64)
+  (local $1 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $assembly/index/stddev
+  local.set $1
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $1
+ )
+ (func $export:assembly/index/skewness (param $0 i32) (result f64)
+  (local $1 f64)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 f64)
+  (local $5 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   block $__inlined_func$assembly/index/skewness$306 (result f64)
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.sub
+    global.set $~lib/memory/__stack_pointer
+    global.get $~lib/memory/__stack_pointer
+    i32.const 6116
+    i32.lt_s
+    br_if $folding-inner0
+    global.get $~lib/memory/__stack_pointer
+    i32.const 0
+    i32.store
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $~lib/typedarray/Float64Array#get:length
+    local.tee $3
+    i32.const 3
+    i32.lt_s
+    if
+     global.get $~lib/memory/__stack_pointer
+     i32.const 4
+     i32.add
+     global.set $~lib/memory/__stack_pointer
+     f64.const nan:0x8000000000000
+     br $__inlined_func$assembly/index/skewness$306
+    end
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $assembly/index/mean
+    local.set $5
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $assembly/index/stddev
+    local.tee $4
+    f64.const 0
+    f64.eq
+    if
+     global.get $~lib/memory/__stack_pointer
+     i32.const 4
+     i32.add
+     global.set $~lib/memory/__stack_pointer
+     f64.const 0
+     br $__inlined_func$assembly/index/skewness$306
+    end
+    loop $for-loop|0
+     local.get $2
+     local.get $3
+     i32.lt_s
+     if
+      global.get $~lib/memory/__stack_pointer
+      local.get $0
+      i32.store
+      local.get $1
+      local.get $0
+      local.get $2
+      call $~lib/typedarray/Float64Array#__get
+      local.get $5
+      f64.sub
+      local.get $4
+      f64.div
+      local.tee $1
+      local.get $1
+      f64.mul
+      local.get $1
+      f64.mul
+      f64.add
+      local.set $1
+      local.get $2
+      i32.const 1
+      i32.add
+      local.set $2
+      br $for-loop|0
+     end
+    end
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.add
+    global.set $~lib/memory/__stack_pointer
+    local.get $3
+    f64.convert_i32_s
+    local.tee $4
+    local.get $4
+    f64.const -1
+    f64.add
+    local.get $4
+    f64.const -2
+    f64.add
+    f64.mul
+    f64.div
+    local.get $1
+    f64.mul
+   end
+   local.set $1
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $1
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/kurtosis (param $0 i32) (result f64)
+  (local $1 f64)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 f64)
+  (local $5 f64)
+  (local $6 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   block $__inlined_func$assembly/index/kurtosis$307 (result f64)
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.sub
+    global.set $~lib/memory/__stack_pointer
+    global.get $~lib/memory/__stack_pointer
+    i32.const 6116
+    i32.lt_s
+    br_if $folding-inner0
+    global.get $~lib/memory/__stack_pointer
+    i32.const 0
+    i32.store
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $~lib/typedarray/Float64Array#get:length
+    local.tee $3
+    i32.const 4
+    i32.lt_s
+    if
+     global.get $~lib/memory/__stack_pointer
+     i32.const 4
+     i32.add
+     global.set $~lib/memory/__stack_pointer
+     f64.const nan:0x8000000000000
+     br $__inlined_func$assembly/index/kurtosis$307
+    end
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $assembly/index/mean
+    local.set $4
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $assembly/index/stddev
+    local.tee $5
+    f64.const 0
+    f64.eq
+    if
+     global.get $~lib/memory/__stack_pointer
+     i32.const 4
+     i32.add
+     global.set $~lib/memory/__stack_pointer
+     f64.const 0
+     br $__inlined_func$assembly/index/kurtosis$307
+    end
+    loop $for-loop|0
+     local.get $2
+     local.get $3
+     i32.lt_s
+     if
+      global.get $~lib/memory/__stack_pointer
+      local.get $0
+      i32.store
+      local.get $1
+      local.get $0
+      local.get $2
+      call $~lib/typedarray/Float64Array#__get
+      local.get $4
+      f64.sub
+      local.get $5
+      f64.div
+      local.tee $1
+      local.get $1
+      f64.mul
+      local.get $1
+      f64.mul
+      local.get $1
+      f64.mul
+      f64.add
+      local.set $1
+      local.get $2
+      i32.const 1
+      i32.add
+      local.set $2
+      br $for-loop|0
+     end
+    end
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.add
+    global.set $~lib/memory/__stack_pointer
+    local.get $3
+    f64.convert_i32_s
+    local.tee $5
+    f64.const -1
+    f64.add
+    local.set $6
+    local.get $5
+    local.get $5
+    f64.const 1
+    f64.add
+    f64.mul
+    local.get $6
+    local.get $5
+    f64.const -2
+    f64.add
+    local.tee $4
+    f64.mul
+    local.get $5
+    f64.const -3
+    f64.add
+    local.tee $5
+    f64.mul
+    f64.div
+    local.get $1
+    f64.mul
+    local.get $6
+    f64.const 3
+    f64.mul
+    local.get $6
+    f64.mul
+    local.get $4
+    local.get $5
+    f64.mul
+    f64.div
+    f64.sub
+   end
+   local.set $1
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $1
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/emaCalc (param $0 i32) (param $1 f64) (result i32)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 i32)
+  (local $5 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.sub
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i64.const 0
+   i64.store
+   global.get $~lib/memory/__stack_pointer
+   i32.const 0
+   i32.store offset=8
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   local.tee $2
+   i32.store
+   block $__inlined_func$assembly/index/emaCalc$308
+    local.get $0
+    call $~lib/typedarray/Float64Array#get:length
+    local.tee $4
+    i32.eqz
+    if
+     i32.const 0
+     call $~lib/typedarray/Float64Array#constructor
+     local.set $0
+     br $__inlined_func$assembly/index/emaCalc$308
+    end
+    global.get $~lib/memory/__stack_pointer
+    local.get $4
+    call $~lib/typedarray/Float64Array#constructor
+    local.tee $0
+    i32.store offset=4
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    global.get $~lib/memory/__stack_pointer
+    local.get $2
+    i32.store offset=8
+    local.get $0
+    i32.const 0
+    local.get $2
+    i32.const 0
+    call $~lib/typedarray/Float64Array#__get
+    call $~lib/typedarray/Float64Array#__set
+    i32.const 1
+    local.set $3
+    loop $for-loop|0
+     local.get $3
+     local.get $4
+     i32.lt_s
+     if
+      global.get $~lib/memory/__stack_pointer
+      local.get $0
+      i32.store
+      global.get $~lib/memory/__stack_pointer
+      local.get $0
+      i32.store offset=8
+      local.get $0
+      local.get $3
+      i32.const 1
+      i32.sub
+      call $~lib/typedarray/Float64Array#__get
+      f64.const 1
+      local.get $1
+      f64.sub
+      f64.mul
+      local.set $5
+      global.get $~lib/memory/__stack_pointer
+      local.get $2
+      i32.store offset=8
+      local.get $0
+      local.get $3
+      local.get $5
+      local.get $2
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      local.get $1
+      f64.mul
+      f64.add
+      call $~lib/typedarray/Float64Array#__set
+      local.get $3
+      i32.const 1
+      i32.add
+      local.set $3
+      br $for-loop|0
+     end
+    end
+   end
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $0
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/zscoreCalc (param $0 i32) (result i32)
+  (local $1 i32)
+  (local $2 i32)
+  (local $3 f64)
+  (local $4 f64)
+  (local $5 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.sub
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i64.const 0
+   i64.store
+   global.get $~lib/memory/__stack_pointer
+   i32.const 0
+   i32.store offset=8
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   local.get $0
+   call $~lib/typedarray/Float64Array#get:length
+   local.set $2
+   global.get $~lib/memory/__stack_pointer
+   local.get $2
+   call $~lib/typedarray/Float64Array#constructor
+   local.tee $5
+   i32.store offset=4
+   block $__inlined_func$assembly/index/zscoreCalc$309
+    local.get $2
+    i32.const 2
+    i32.lt_s
+    br_if $__inlined_func$assembly/index/zscoreCalc$309
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $assembly/index/mean
+    local.set $3
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $assembly/index/stddev
+    local.tee $4
+    f64.const 0
+    f64.eq
+    br_if $__inlined_func$assembly/index/zscoreCalc$309
+    loop $for-loop|0
+     local.get $1
+     local.get $2
+     i32.lt_s
+     if
+      global.get $~lib/memory/__stack_pointer
+      local.get $5
+      i32.store
+      global.get $~lib/memory/__stack_pointer
+      local.get $0
+      i32.store offset=8
+      local.get $5
+      local.get $1
+      local.get $0
+      local.get $1
+      call $~lib/typedarray/Float64Array#__get
+      local.get $3
+      f64.sub
+      local.get $4
+      f64.div
+      call $~lib/typedarray/Float64Array#__set
+      local.get $1
+      i32.const 1
+      i32.add
+      local.set $1
+      br $for-loop|0
+     end
+    end
+   end
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $5
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/roughCalc (param $0 i32) (param $1 i32) (result i32)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 i32)
+  (local $5 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store offset=4
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.sub
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i64.const 0
+   i64.store
+   global.get $~lib/memory/__stack_pointer
+   i32.const 0
+   i32.store offset=8
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   local.get $0
+   call $~lib/typedarray/Float64Array#get:length
+   local.set $4
+   global.get $~lib/memory/__stack_pointer
+   local.get $4
+   call $~lib/typedarray/Float64Array#constructor
+   local.tee $3
+   i32.store offset=4
+   loop $for-loop|0
+    local.get $2
+    local.get $4
+    i32.lt_s
+    if
+     global.get $~lib/memory/__stack_pointer
+     local.get $3
+     i32.store
+     global.get $~lib/memory/__stack_pointer
+     local.get $0
+     i32.store offset=8
+     local.get $0
+     local.get $2
+     call $~lib/typedarray/Float64Array#__get
+     local.set $5
+     global.get $~lib/memory/__stack_pointer
+     local.get $1
+     i32.store offset=8
+     local.get $3
+     local.get $2
+     local.get $5
+     local.get $1
+     call $~lib/typedarray/Float64Array#get:length
+     local.get $2
+     i32.gt_s
+     if (result f64)
+      global.get $~lib/memory/__stack_pointer
+      local.get $1
+      i32.store offset=8
+      local.get $1
+      local.get $2
+      call $~lib/typedarray/Float64Array#__get
+     else
+      f64.const 0
+     end
+     f64.sub
+     call $~lib/typedarray/Float64Array#__set
+     local.get $2
+     i32.const 1
+     i32.add
+     local.set $2
+     br $for-loop|0
+    end
+   end
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 8
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $3
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/cosineSim (param $0 i32) (param $1 i32) (result f64)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 f64)
+  (local $5 f64)
+  (local $6 f64)
+  (local $7 i32)
+  (local $8 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store offset=4
+   block $__inlined_func$assembly/index/cosineSim$311 (result f64)
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.sub
+    global.set $~lib/memory/__stack_pointer
+    global.get $~lib/memory/__stack_pointer
+    i32.const 6116
+    i32.lt_s
+    br_if $folding-inner0
+    global.get $~lib/memory/__stack_pointer
+    i32.const 0
+    i32.store
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    local.tee $2
+    i32.store
+    local.get $2
+    call $~lib/typedarray/Float64Array#get:length
+    local.set $7
+    local.get $1
+    local.set $0
+    global.get $~lib/memory/__stack_pointer
+    local.get $1
+    i32.store
+    local.get $1
+    call $~lib/typedarray/Float64Array#get:length
+    local.get $7
+    i32.gt_s
+    if
+     local.get $2
+     local.set $0
+     global.get $~lib/memory/__stack_pointer
+     local.get $2
+     i32.store
+    else
+     global.get $~lib/memory/__stack_pointer
+     local.get $1
+     i32.store
+    end
+    local.get $0
+    call $~lib/typedarray/Float64Array#get:length
+    local.tee $0
+    i32.eqz
+    if
+     global.get $~lib/memory/__stack_pointer
+     i32.const 4
+     i32.add
+     global.set $~lib/memory/__stack_pointer
+     f64.const 0
+     br $__inlined_func$assembly/index/cosineSim$311
+    end
+    loop $for-loop|0
+     local.get $0
+     local.get $3
+     i32.gt_s
+     if
+      global.get $~lib/memory/__stack_pointer
+      local.get $2
+      i32.store
+      local.get $2
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      local.set $8
+      global.get $~lib/memory/__stack_pointer
+      local.get $1
+      i32.store
+      local.get $4
+      local.get $8
+      local.get $1
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      f64.mul
+      f64.add
+      local.set $4
+      global.get $~lib/memory/__stack_pointer
+      local.get $2
+      i32.store
+      local.get $2
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      local.set $8
+      global.get $~lib/memory/__stack_pointer
+      local.get $2
+      i32.store
+      local.get $5
+      local.get $8
+      local.get $2
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      f64.mul
+      f64.add
+      local.set $5
+      global.get $~lib/memory/__stack_pointer
+      local.get $1
+      i32.store
+      local.get $1
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      local.set $8
+      global.get $~lib/memory/__stack_pointer
+      local.get $1
+      i32.store
+      local.get $6
+      local.get $8
+      local.get $1
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      f64.mul
+      f64.add
+      local.set $6
+      local.get $3
+      i32.const 1
+      i32.add
+      local.set $3
+      br $for-loop|0
+     end
+    end
+    local.get $5
+    f64.sqrt
+    local.get $6
+    f64.sqrt
+    f64.mul
+    local.tee $5
+    f64.const 0
+    f64.eq
+    if
+     global.get $~lib/memory/__stack_pointer
+     i32.const 4
+     i32.add
+     global.set $~lib/memory/__stack_pointer
+     f64.const 0
+     br $__inlined_func$assembly/index/cosineSim$311
+    end
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.add
+    global.set $~lib/memory/__stack_pointer
+    local.get $4
+    local.get $5
+    f64.div
+   end
+   local.set $4
+   global.get $~lib/memory/__stack_pointer
+   i32.const 8
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $4
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/sqEuclideanDist (param $0 i32) (param $1 i32) (result f64)
+  (local $2 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  global.get $~lib/memory/__stack_pointer
+  i32.const 6116
+  i32.lt_s
+  if
+   i32.const 38912
+   i32.const 38960
+   i32.const 1
+   i32.const 1
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  global.get $~lib/memory/__stack_pointer
+  local.get $1
+  i32.store offset=4
+  local.get $0
+  local.get $1
+  call $assembly/index/sqEuclideanDist
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $2
+ )
+ (func $export:assembly/index/euclideanDist (param $0 i32) (param $1 i32) (result f64)
+  (local $2 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store offset=4
+   global.get $~lib/memory/__stack_pointer
+   i32.const 8
+   i32.sub
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i64.const 0
+   i64.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store offset=4
+   local.get $0
+   local.get $1
+   call $assembly/index/sqEuclideanDist
+   f64.sqrt
+   local.set $2
+   global.get $~lib/memory/__stack_pointer
+   i32.const 8
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 8
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $2
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/manhattanDist (param $0 i32) (param $1 i32) (result f64)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 f64)
+  (local $5 i32)
+  (local $6 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store offset=4
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.sub
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   local.tee $2
+   i32.store
+   local.get $2
+   call $~lib/typedarray/Float64Array#get:length
+   local.set $5
+   local.get $1
+   local.set $0
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store
+   local.get $1
+   call $~lib/typedarray/Float64Array#get:length
+   local.get $5
+   i32.lt_s
+   if
+    local.get $2
+    local.set $0
+    global.get $~lib/memory/__stack_pointer
+    local.get $2
+    i32.store
+   else
+    global.get $~lib/memory/__stack_pointer
+    local.get $1
+    i32.store
+   end
+   local.get $0
+   call $~lib/typedarray/Float64Array#get:length
+   local.set $0
+   loop $for-loop|0
+    local.get $0
+    local.get $3
+    i32.gt_s
+    if
+     global.get $~lib/memory/__stack_pointer
+     local.get $2
+     i32.store
+     local.get $2
+     call $~lib/typedarray/Float64Array#get:length
+     local.get $3
+     i32.gt_s
+     if (result f64)
+      global.get $~lib/memory/__stack_pointer
+      local.get $2
+      i32.store
+      local.get $2
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+     else
+      f64.const 0
+     end
+     local.set $6
+     global.get $~lib/memory/__stack_pointer
+     local.get $1
+     i32.store
+     local.get $4
+     local.get $6
+     local.get $1
+     call $~lib/typedarray/Float64Array#get:length
+     local.get $3
+     i32.gt_s
+     if (result f64)
+      global.get $~lib/memory/__stack_pointer
+      local.get $1
+      i32.store
+      local.get $1
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+     else
+      f64.const 0
+     end
+     f64.sub
+     f64.abs
+     f64.add
+     local.set $4
+     local.get $3
+     i32.const 1
+     i32.add
+     local.set $3
+     br $for-loop|0
+    end
+   end
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 8
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $4
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/mahalanobisDist (param $0 i32) (param $1 i32) (param $2 i32) (result f64)
+  (local $3 i32)
+  (local $4 i32)
+  (local $5 f64)
+  (local $6 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 12
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   local.get $1
+   i32.store offset=4
+   global.get $~lib/memory/__stack_pointer
+   local.get $2
+   i32.store offset=8
+   block $__inlined_func$assembly/index/mahalanobisDist$314 (result f64)
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.sub
+    global.set $~lib/memory/__stack_pointer
+    global.get $~lib/memory/__stack_pointer
+    i32.const 6116
+    i32.lt_s
+    br_if $folding-inner0
+    global.get $~lib/memory/__stack_pointer
+    i32.const 0
+    i32.store
+    global.get $~lib/memory/__stack_pointer
+    local.get $0
+    i32.store
+    local.get $0
+    call $~lib/typedarray/Float64Array#get:length
+    local.set $3
+    global.get $~lib/memory/__stack_pointer
+    local.get $1
+    i32.store
+    local.get $1
+    call $~lib/typedarray/Float64Array#get:length
+    local.get $3
+    i32.lt_s
+    if
+     global.get $~lib/memory/__stack_pointer
+     local.get $1
+     i32.store
+     local.get $1
+     call $~lib/typedarray/Float64Array#get:length
+     local.set $3
+    end
+    global.get $~lib/memory/__stack_pointer
+    local.get $2
+    i32.store
+    local.get $2
+    call $~lib/typedarray/Float64Array#get:length
+    local.get $3
+    i32.lt_s
+    if
+     global.get $~lib/memory/__stack_pointer
+     local.get $2
+     i32.store
+     local.get $2
+     call $~lib/typedarray/Float64Array#get:length
+     local.set $3
+    end
+    local.get $3
+    i32.eqz
+    if
+     global.get $~lib/memory/__stack_pointer
+     i32.const 4
+     i32.add
+     global.set $~lib/memory/__stack_pointer
+     f64.const 0
+     br $__inlined_func$assembly/index/mahalanobisDist$314
+    end
+    loop $for-loop|0
+     local.get $3
+     local.get $4
+     i32.gt_s
+     if
+      global.get $~lib/memory/__stack_pointer
+      local.get $0
+      i32.store
+      local.get $0
+      local.get $4
+      call $~lib/typedarray/Float64Array#__get
+      local.set $6
+      global.get $~lib/memory/__stack_pointer
+      local.get $1
+      i32.store
+      local.get $6
+      local.get $1
+      local.get $4
+      call $~lib/typedarray/Float64Array#__get
+      f64.sub
+      local.tee $6
+      local.get $6
+      f64.mul
+      local.set $6
+      global.get $~lib/memory/__stack_pointer
+      local.get $2
+      i32.store
+      local.get $5
+      local.get $6
+      local.get $2
+      local.get $4
+      call $~lib/typedarray/Float64Array#__get
+      f64.const 1e-08
+      f64.gt
+      if (result f64)
+       global.get $~lib/memory/__stack_pointer
+       local.get $2
+       i32.store
+       local.get $2
+       local.get $4
+       call $~lib/typedarray/Float64Array#__get
+      else
+       f64.const 1e-08
+      end
+      f64.div
+      f64.add
+      local.set $5
+      local.get $4
+      i32.const 1
+      i32.add
+      local.set $4
+      br $for-loop|0
+     end
+    end
+    global.get $~lib/memory/__stack_pointer
+    i32.const 4
+    i32.add
+    global.set $~lib/memory/__stack_pointer
+    local.get $5
+    f64.sqrt
+   end
+   local.set $5
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $5
+   return
+  end
+  i32.const 38912
+  i32.const 38960
+  i32.const 1
+  i32.const 1
+  call $~lib/builtins/abort
+  unreachable
+ )
+ (func $export:assembly/index/normalizeL2Vec (param $0 i32) (result i32)
+  (local $1 i32)
+  (local $2 f64)
+  (local $3 i32)
+  (local $4 i32)
+  (local $5 f64)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  block $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.sub
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 6116
+   i32.lt_s
+   br_if $folding-inner0
+   global.get $~lib/memory/__stack_pointer
+   i64.const 0
+   i64.store
+   global.get $~lib/memory/__stack_pointer
+   i32.const 0
+   i32.store offset=8
+   global.get $~lib/memory/__stack_pointer
+   local.get $0
+   i32.store
+   local.get $0
+   call $~lib/typedarray/Float64Array#get:length
+   local.set $4
+   loop $for-loop|0
+    local.get $1
+    local.get $4
+    i32.lt_s
+    if
+     global.get $~lib/memory/__stack_pointer
+     local.get $0
+     i32.store
+     local.get $0
+     local.get $1
+     call $~lib/typedarray/Float64Array#__get
+     local.set $5
+     global.get $~lib/memory/__stack_pointer
+     local.get $0
+     i32.store
+     local.get $2
+     local.get $5
+     local.get $0
+     local.get $1
+     call $~lib/typedarray/Float64Array#__get
+     f64.mul
+     f64.add
+     local.set $2
+     local.get $1
+     i32.const 1
+     i32.add
+     local.set $1
+     br $for-loop|0
+    end
+   end
+   global.get $~lib/memory/__stack_pointer
+   local.get $4
+   call $~lib/typedarray/Float64Array#constructor
+   local.tee $1
+   i32.store offset=4
+   local.get $2
+   f64.sqrt
+   local.tee $2
+   f64.const 0
+   f64.ne
+   if
+    loop $for-loop|1
+     local.get $3
+     local.get $4
+     i32.lt_s
+     if
+      global.get $~lib/memory/__stack_pointer
+      local.get $1
+      i32.store
+      global.get $~lib/memory/__stack_pointer
+      local.get $0
+      i32.store offset=8
+      local.get $1
+      local.get $3
+      local.get $0
+      local.get $3
+      call $~lib/typedarray/Float64Array#__get
+      local.get $2
+      f64.div
+      call $~lib/typedarray/Float64Array#__set
+      local.get $3
+      i32.const 1
+      i32.add
+      local.set $3
+      br $for-loop|1
+     end
+    end
+   end
+   global.get $~lib/memory/__stack_pointer
+   i32.const 12
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   global.get $~lib/memory/__stack_pointer
+   i32.const 4
+   i32.add
+   global.set $~lib/memory/__stack_pointer
+   local.get $1
    return
   end
   i32.const 38912

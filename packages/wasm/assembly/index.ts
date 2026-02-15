@@ -508,3 +508,181 @@ export function smooth(data: Float64Array): Float64Array {
 
   return result;
 }
+
+// =============================================================================
+// Statistics (v3 additions)
+// =============================================================================
+
+/** Sample variance: Σ(x - mean)² / (n - 1) */
+export function variance(data: Float64Array): f64 {
+  const len = data.length;
+  if (len < 2) return NaN;
+  const m = mean(data);
+  let sum: f64 = 0;
+  for (let i = 0; i < len; i++) {
+    const delta = data[i] - m;
+    sum += delta * delta;
+  }
+  return sum / <f64>(len - 1);
+}
+
+/** Standard deviation */
+export function stddev(data: Float64Array): f64 {
+  return Math.sqrt(variance(data));
+}
+
+/** Fisher-Pearson skewness */
+export function skewness(data: Float64Array): f64 {
+  const n = data.length;
+  if (n < 3) return NaN;
+  const m = mean(data);
+  const s = stddev(data);
+  if (s === 0) return 0;
+  let sum: f64 = 0;
+  for (let i = 0; i < n; i++) {
+    const z = (data[i] - m) / s;
+    sum += z * z * z;
+  }
+  const nf = <f64>n;
+  return (nf / ((nf - 1) * (nf - 2))) * sum;
+}
+
+/** Excess kurtosis */
+export function kurtosis(data: Float64Array): f64 {
+  const n = data.length;
+  if (n < 4) return NaN;
+  const m = mean(data);
+  const s = stddev(data);
+  if (s === 0) return 0;
+  let sum: f64 = 0;
+  for (let i = 0; i < n; i++) {
+    const z = (data[i] - m) / s;
+    sum += z * z * z * z;
+  }
+  const nf = <f64>n;
+  const rawKurt = (nf * (nf + 1)) / ((nf - 1) * (nf - 2) * (nf - 3)) * sum;
+  const correction = (3 * (nf - 1) * (nf - 1)) / ((nf - 2) * (nf - 3));
+  return rawKurt - correction;
+}
+
+/** Exponential moving average */
+export function emaCalc(data: Float64Array, alpha: f64): Float64Array {
+  const len = data.length;
+  if (len === 0) return new Float64Array(0);
+  const result = new Float64Array(len);
+  result[0] = data[0];
+  for (let i = 1; i < len; i++) {
+    result[i] = result[i - 1] * (1 - alpha) + data[i] * alpha;
+  }
+  return result;
+}
+
+/** Z-score normalization */
+export function zscoreCalc(data: Float64Array): Float64Array {
+  const len = data.length;
+  const result = new Float64Array(len);
+  if (len < 2) return result;
+  const m = mean(data);
+  const s = stddev(data);
+  if (s === 0) return result;
+  for (let i = 0; i < len; i++) {
+    result[i] = (data[i] - m) / s;
+  }
+  return result;
+}
+
+/** Rough (residuals: original - smoothed) */
+export function roughCalc(original: Float64Array, smoothed: Float64Array): Float64Array {
+  const len = original.length;
+  const result = new Float64Array(len);
+  for (let i = 0; i < len; i++) {
+    result[i] = original[i] - (i < smoothed.length ? smoothed[i] : 0);
+  }
+  return result;
+}
+
+// =============================================================================
+// Distance Functions (v3 additions)
+// =============================================================================
+
+/** Cosine similarity */
+export function cosineSim(a: Float64Array, b: Float64Array): f64 {
+  const len = a.length < b.length ? a.length : b.length;
+  if (len === 0) return 0;
+  let dot: f64 = 0;
+  let magA: f64 = 0;
+  let magB: f64 = 0;
+  for (let i = 0; i < len; i++) {
+    dot += a[i] * b[i];
+    magA += a[i] * a[i];
+    magB += b[i] * b[i];
+  }
+  const denom = Math.sqrt(magA) * Math.sqrt(magB);
+  if (denom === 0) return 0;
+  return dot / denom;
+}
+
+/** Squared Euclidean distance */
+export function sqEuclideanDist(a: Float64Array, b: Float64Array): f64 {
+  const len = a.length > b.length ? a.length : b.length;
+  let sum: f64 = 0;
+  for (let i = 0; i < len; i++) {
+    const ai: f64 = i < a.length ? a[i] : 0;
+    const bi: f64 = i < b.length ? b[i] : 0;
+    const delta = ai - bi;
+    sum += delta * delta;
+  }
+  return sum;
+}
+
+/** Euclidean distance */
+export function euclideanDist(a: Float64Array, b: Float64Array): f64 {
+  return Math.sqrt(sqEuclideanDist(a, b));
+}
+
+/** Manhattan distance */
+export function manhattanDist(a: Float64Array, b: Float64Array): f64 {
+  const len = a.length > b.length ? a.length : b.length;
+  let sum: f64 = 0;
+  for (let i = 0; i < len; i++) {
+    const ai: f64 = i < a.length ? a[i] : 0;
+    const bi: f64 = i < b.length ? b[i] : 0;
+    sum += Math.abs(ai - bi);
+  }
+  return sum;
+}
+
+/** Mahalanobis distance (diagonal covariance) */
+export function mahalanobisDist(
+  point: Float64Array,
+  means: Float64Array,
+  variances: Float64Array,
+): f64 {
+  let len = point.length;
+  if (means.length < len) len = means.length;
+  if (variances.length < len) len = variances.length;
+  if (len === 0) return 0;
+  let sum: f64 = 0;
+  for (let i = 0; i < len; i++) {
+    const delta = point[i] - means[i];
+    const v: f64 = variances[i] > 1e-8 ? variances[i] : 1e-8;
+    sum += (delta * delta) / v;
+  }
+  return Math.sqrt(sum);
+}
+
+/** L2 normalize a vector */
+export function normalizeL2Vec(vector: Float64Array): Float64Array {
+  const len = vector.length;
+  let sumSq: f64 = 0;
+  for (let i = 0; i < len; i++) {
+    sumSq += vector[i] * vector[i];
+  }
+  const mag = Math.sqrt(sumSq);
+  const result = new Float64Array(len);
+  if (mag === 0) return result;
+  for (let i = 0; i < len; i++) {
+    result[i] = vector[i] / mag;
+  }
+  return result;
+}

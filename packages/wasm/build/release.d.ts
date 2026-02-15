@@ -126,3 +126,89 @@ export declare function hanning(data: Float64Array): Float64Array;
  * @returns `~lib/typedarray/Float64Array`
  */
 export declare function smooth(data: Float64Array): Float64Array;
+/**
+ * assembly/index/variance
+ * @param data `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function variance(data: Float64Array): number;
+/**
+ * assembly/index/stddev
+ * @param data `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function stddev(data: Float64Array): number;
+/**
+ * assembly/index/skewness
+ * @param data `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function skewness(data: Float64Array): number;
+/**
+ * assembly/index/kurtosis
+ * @param data `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function kurtosis(data: Float64Array): number;
+/**
+ * assembly/index/emaCalc
+ * @param data `~lib/typedarray/Float64Array`
+ * @param alpha `f64`
+ * @returns `~lib/typedarray/Float64Array`
+ */
+export declare function emaCalc(data: Float64Array, alpha: number): Float64Array;
+/**
+ * assembly/index/zscoreCalc
+ * @param data `~lib/typedarray/Float64Array`
+ * @returns `~lib/typedarray/Float64Array`
+ */
+export declare function zscoreCalc(data: Float64Array): Float64Array;
+/**
+ * assembly/index/roughCalc
+ * @param original `~lib/typedarray/Float64Array`
+ * @param smoothed `~lib/typedarray/Float64Array`
+ * @returns `~lib/typedarray/Float64Array`
+ */
+export declare function roughCalc(original: Float64Array, smoothed: Float64Array): Float64Array;
+/**
+ * assembly/index/cosineSim
+ * @param a `~lib/typedarray/Float64Array`
+ * @param b `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function cosineSim(a: Float64Array, b: Float64Array): number;
+/**
+ * assembly/index/sqEuclideanDist
+ * @param a `~lib/typedarray/Float64Array`
+ * @param b `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function sqEuclideanDist(a: Float64Array, b: Float64Array): number;
+/**
+ * assembly/index/euclideanDist
+ * @param a `~lib/typedarray/Float64Array`
+ * @param b `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function euclideanDist(a: Float64Array, b: Float64Array): number;
+/**
+ * assembly/index/manhattanDist
+ * @param a `~lib/typedarray/Float64Array`
+ * @param b `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function manhattanDist(a: Float64Array, b: Float64Array): number;
+/**
+ * assembly/index/mahalanobisDist
+ * @param point `~lib/typedarray/Float64Array`
+ * @param means `~lib/typedarray/Float64Array`
+ * @param variances `~lib/typedarray/Float64Array`
+ * @returns `f64`
+ */
+export declare function mahalanobisDist(point: Float64Array, means: Float64Array, variances: Float64Array): number;
+/**
+ * assembly/index/normalizeL2Vec
+ * @param vector `~lib/typedarray/Float64Array`
+ * @returns `~lib/typedarray/Float64Array`
+ */
+export declare function normalizeL2Vec(vector: Float64Array): Float64Array;

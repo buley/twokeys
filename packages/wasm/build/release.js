@@ -106,6 +106,103 @@ async function instantiate(module, imports = {}) {
       data = __lowerTypedArray(Float64Array, 4, 3, data) || __notnull();
       return __liftTypedArray(Float64Array, exports.smooth(data) >>> 0);
     },
+    variance(data) {
+      // assembly/index/variance(~lib/typedarray/Float64Array) => f64
+      data = __lowerTypedArray(Float64Array, 4, 3, data) || __notnull();
+      return exports.variance(data);
+    },
+    stddev(data) {
+      // assembly/index/stddev(~lib/typedarray/Float64Array) => f64
+      data = __lowerTypedArray(Float64Array, 4, 3, data) || __notnull();
+      return exports.stddev(data);
+    },
+    skewness(data) {
+      // assembly/index/skewness(~lib/typedarray/Float64Array) => f64
+      data = __lowerTypedArray(Float64Array, 4, 3, data) || __notnull();
+      return exports.skewness(data);
+    },
+    kurtosis(data) {
+      // assembly/index/kurtosis(~lib/typedarray/Float64Array) => f64
+      data = __lowerTypedArray(Float64Array, 4, 3, data) || __notnull();
+      return exports.kurtosis(data);
+    },
+    emaCalc(data, alpha) {
+      // assembly/index/emaCalc(~lib/typedarray/Float64Array, f64) => ~lib/typedarray/Float64Array
+      data = __lowerTypedArray(Float64Array, 4, 3, data) || __notnull();
+      return __liftTypedArray(Float64Array, exports.emaCalc(data, alpha) >>> 0);
+    },
+    zscoreCalc(data) {
+      // assembly/index/zscoreCalc(~lib/typedarray/Float64Array) => ~lib/typedarray/Float64Array
+      data = __lowerTypedArray(Float64Array, 4, 3, data) || __notnull();
+      return __liftTypedArray(Float64Array, exports.zscoreCalc(data) >>> 0);
+    },
+    roughCalc(original, smoothed) {
+      // assembly/index/roughCalc(~lib/typedarray/Float64Array, ~lib/typedarray/Float64Array) => ~lib/typedarray/Float64Array
+      original = __retain(__lowerTypedArray(Float64Array, 4, 3, original) || __notnull());
+      smoothed = __lowerTypedArray(Float64Array, 4, 3, smoothed) || __notnull();
+      try {
+        return __liftTypedArray(Float64Array, exports.roughCalc(original, smoothed) >>> 0);
+      } finally {
+        __release(original);
+      }
+    },
+    cosineSim(a, b) {
+      // assembly/index/cosineSim(~lib/typedarray/Float64Array, ~lib/typedarray/Float64Array) => f64
+      a = __retain(__lowerTypedArray(Float64Array, 4, 3, a) || __notnull());
+      b = __lowerTypedArray(Float64Array, 4, 3, b) || __notnull();
+      try {
+        return exports.cosineSim(a, b);
+      } finally {
+        __release(a);
+      }
+    },
+    sqEuclideanDist(a, b) {
+      // assembly/index/sqEuclideanDist(~lib/typedarray/Float64Array, ~lib/typedarray/Float64Array) => f64
+      a = __retain(__lowerTypedArray(Float64Array, 4, 3, a) || __notnull());
+      b = __lowerTypedArray(Float64Array, 4, 3, b) || __notnull();
+      try {
+        return exports.sqEuclideanDist(a, b);
+      } finally {
+        __release(a);
+      }
+    },
+    euclideanDist(a, b) {
+      // assembly/index/euclideanDist(~lib/typedarray/Float64Array, ~lib/typedarray/Float64Array) => f64
+      a = __retain(__lowerTypedArray(Float64Array, 4, 3, a) || __notnull());
+      b = __lowerTypedArray(Float64Array, 4, 3, b) || __notnull();
+      try {
+        return exports.euclideanDist(a, b);
+      } finally {
+        __release(a);
+      }
+    },
+    manhattanDist(a, b) {
+      // assembly/index/manhattanDist(~lib/typedarray/Float64Array, ~lib/typedarray/Float64Array) => f64
+      a = __retain(__lowerTypedArray(Float64Array, 4, 3, a) || __notnull());
+      b = __lowerTypedArray(Float64Array, 4, 3, b) || __notnull();
+      try {
+        return exports.manhattanDist(a, b);
+      } finally {
+        __release(a);
+      }
+    },
+    mahalanobisDist(point, means, variances) {
+      // assembly/index/mahalanobisDist(~lib/typedarray/Float64Array, ~lib/typedarray/Float64Array, ~lib/typedarray/Float64Array) => f64
+      point = __retain(__lowerTypedArray(Float64Array, 4, 3, point) || __notnull());
+      means = __retain(__lowerTypedArray(Float64Array, 4, 3, means) || __notnull());
+      variances = __lowerTypedArray(Float64Array, 4, 3, variances) || __notnull();
+      try {
+        return exports.mahalanobisDist(point, means, variances);
+      } finally {
+        __release(point);
+        __release(means);
+      }
+    },
+    normalizeL2Vec(vector) {
+      // assembly/index/normalizeL2Vec(~lib/typedarray/Float64Array) => ~lib/typedarray/Float64Array
+      vector = __lowerTypedArray(Float64Array, 4, 3, vector) || __notnull();
+      return __liftTypedArray(Float64Array, exports.normalizeL2Vec(vector) >>> 0);
+    },
   }, exports);
   function __liftString(pointer) {
     if (!pointer) return null;
@@ -138,6 +235,23 @@ async function instantiate(module, imports = {}) {
     new constructor(memory.buffer, buffer, length).set(values);
     exports.__unpin(buffer);
     return header;
+  }
+  const refcounts = new Map();
+  function __retain(pointer) {
+    if (pointer) {
+      const refcount = refcounts.get(pointer);
+      if (refcount) refcounts.set(pointer, refcount + 1);
+      else refcounts.set(exports.__pin(pointer), 1);
+    }
+    return pointer;
+  }
+  function __release(pointer) {
+    if (pointer) {
+      const refcount = refcounts.get(pointer);
+      if (refcount === 1) exports.__unpin(pointer), refcounts.delete(pointer);
+      else if (refcount) refcounts.set(pointer, refcount - 1);
+      else throw Error(`invalid refcount '${refcount}' for reference '${pointer}'`);
+    }
   }
   function __notnull() {
     throw TypeError("value must not be null");
@@ -183,6 +297,19 @@ export const {
   inverse,
   hanning,
   smooth,
+  variance,
+  stddev,
+  skewness,
+  kurtosis,
+  emaCalc,
+  zscoreCalc,
+  roughCalc,
+  cosineSim,
+  sqEuclideanDist,
+  euclideanDist,
+  manhattanDist,
+  mahalanobisDist,
+  normalizeL2Vec,
 } = await (async url => instantiate(
   await (async () => {
     const isNodeOrBun = typeof process != "undefined" && process.versions != null && (process.versions.node != null || process.versions.bun != null);
