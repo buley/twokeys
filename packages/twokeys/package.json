@@ -1,7 +1,7 @@
 {
   "name": "twokeys",
-  "version": "2.3.0",
-  "description": "A small data exploration and manipulation library, named after John Tukey",
+  "version": "3.0.0",
+  "description": "Exploratory data analysis for graphs, vectors, and series — named after John Tukey",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -29,18 +29,19 @@
     "url": "git+https://github.com/buley/twokeys.git"
   },
   "keywords": [
-    "statistics",
-    "data-analysis",
+    "graph-eda",
     "exploratory-data-analysis",
     "eda",
     "tukey",
-    "median",
-    "mean",
-    "mode",
-    "quartiles",
-    "outliers",
-    "smoothing",
-    "binning"
+    "graph-algorithms",
+    "cosine-similarity",
+    "mahalanobis",
+    "clustering",
+    "dbscan",
+    "community-detection",
+    "pagerank",
+    "statistics",
+    "data-analysis"
   ],
   "author": "Taylor Buley <buley@outlook.com>",
   "license": "MIT",
