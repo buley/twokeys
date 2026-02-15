@@ -1450,7 +1450,6 @@ export class Twokeys {
 export * from './distance';
 export * from './graph';
 export * from './graph-eda';
-export * from './gds';
 
 // Default export
 export default Twokeys;

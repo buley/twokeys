@@ -1,6 +1,6 @@
 {
   "name": "twokeys",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Exploratory data analysis for graphs, vectors, and series — named after John Tukey",
   "type": "module",
   "main": "./dist/index.cjs",
