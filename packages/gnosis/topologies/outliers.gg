@@ -1,0 +1,12 @@
+(data: Source)
+(hinges: Statistics { op: "hinges" })
+(iqr: Statistics { op: "iqr" })
+(fences: Logic { op: "tukey_fences", k: 1.5 })
+(filter: Logic { op: "filter_outliers" })
+
+(data)-[:FORK]->(hinges | iqr)
+(hinges | iqr)-[:FOLD { strategy: "merge-all" }]->(bounds_input)
+(bounds_input)-[:PROCESS]->(fences)
+(data | fences)-[:FOLD { strategy: "merge-all" }]->(filter_input)
+(filter_input)-[:PROCESS]->(filter)
+(filter)-[:PROCESS]->(outliers)

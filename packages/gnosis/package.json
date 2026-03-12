@@ -1,0 +1,10 @@
+{
+  "name": "@twokeys/gnosis",
+  "version": "1.0.0",
+  "description": "John Tukey EDA algorithms implemented as Gnosis quantum topologies",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./topologies/*": "./topologies/*.gg"
+  }
+}

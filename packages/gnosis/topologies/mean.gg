@@ -1,0 +1,9 @@
+(data: Source)
+(sum: Statistics { op: "sum" })
+(len: Statistics { op: "length" })
+(calc: Logic { op: "divide" })
+
+(data)-[:FORK]->(sum | len)
+(sum | len)-[:FOLD { strategy: "merge-all" }]->(components)
+(components)-[:PROCESS]->(calc)
+(calc)-[:PROCESS]->(mean)
